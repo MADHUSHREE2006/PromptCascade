@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+{% block title %}PromptCascade — Home{% endblock %}
+
+{% block head %}
+<style>
+/* ── Hero ── */
+.hero {
+  position: relative;
+  padding: 4rem 0 3rem;
+  overflow: hidden;
+}
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(79,142,247,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79,142,247,.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+}
+.hero-glow {
+  position: absolute; top: -120px; left: 50%; transform: translateX(-50%);
+  width: 700px; height: 400px;
+  background: radial-gradient(ellipse, rgba(79,142,247,.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-content { position: relative; z-index: 1; text-align: center; }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: .5rem;
+  font-size: .72rem; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--accent);
+  background: rgba(79,142,247,.1); border: 1px solid rgba(79,142,247,.2);
+  padding: .3rem .9rem; border-radius: 20px; margin-bottom: 1.25rem;
+}
+.hero h1 {
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  font-weight: 800; letter-spacing: -.04em; line-height: 1.1;
+  margin-bottom: 1rem;
+}
+.hero h1 .grad {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero-sub {
+  font-size: 1.05rem; color: var(--text-muted); max-width: 560px; margin: 0 auto 2rem;
+}
+.hero-actions { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; }
+
+/* ── Stat cards ── */
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  position: relative; overflow: hidden;
+  transition: var(--transition);
+}
+.stat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--line-color, var(--accent));
+}
+.stat-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.stat-value {
+  font-size: 2.25rem; font-weight: 800; letter-spacing: -.04em;
+  line-height: 1; margin-bottom: .35rem;
+}
+.stat-label { font-size: .78rem; color: var(--text-muted); font-weight: 500; }
+.stat-icon {
+  position: absolute; right: 1.25rem; top: 1.25rem;
+  font-size: 1.5rem; opacity: .25;
+}
+
+/* ── Pipeline ── */
+.pipeline {
+  display: flex; align-items: stretch;
+  gap: 0; margin: 2rem 0;
+  overflow-x: auto; padding-bottom: .5rem;
+}
+.pipe-step {
+  flex: 1; min-width: 140px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0; padding: 1.25rem 1rem; text-align: center;
+  position: relative;
+}
+.pipe-step:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+.pipe-step:last-child  { border-radius: 0 var(--radius) var(--radius) 0; }
+.pipe-step + .pipe-step { border-left: none; }
+.pipe-step::after {
+  content: '→';
+  position: absolute; right: -12px; top: 50%; transform: translateY(-50%);
+  z-index: 2; color: var(--accent); font-size: 1.1rem; font-weight: 700;
+}
+.pipe-step:last-child::after { display: none; }
+.pipe-icon { font-size: 1.6rem; margin-bottom: .4rem; }
+.pipe-title { font-size: .78rem; font-weight: 700; color: var(--text); margin-bottom: .2rem; }
+.pipe-desc  { font-size: .68rem; color: var(--text-muted); }
+
+/* ── Strategy cards ── */
+.strategy-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  transition: var(--transition);
+  position: relative; overflow: hidden;
+}
+.strategy-card:hover { border-color: var(--s-color); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,.3); }
+.strategy-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--s-color);
+}
+.strategy-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: .75rem; }
+.strategy-name { font-weight: 700; font-size: .95rem; }
+.strategy-cost {
+  font-size: .72rem; font-weight: 700; font-family: var(--mono);
+  background: rgba(255,255,255,.06); padding: .2rem .5rem; border-radius: 6px;
+}
+.strategy-strength-bar {
+  height: 4px; background: var(--border); border-radius: 2px; margin: .75rem 0 .5rem; overflow: hidden;
+}
+.strategy-strength-fill { height: 100%; border-radius: 2px; background: var(--s-color); }
+.strategy-meta { font-size: .72rem; color: var(--text-muted); }
+.strategy-range { font-family: var(--mono); font-size: .7rem; color: var(--text-faint); }
+
+/* ── Result preview ── */
+.result-strip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.result-strip-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.result-table { width: 100%; border-collapse: collapse; }
+.result-table th {
+  text-align: left; padding: .65rem 1.5rem;
+  font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-muted); border-bottom: 1px solid var(--border);
+}
+.result-table td { padding: .75rem 1.5rem; font-size: .875rem; border-bottom: 1px solid var(--border); }
+.result-table tr:last-child td { border-bottom: none; }
+.result-table tr.highlight-row td { background: rgba(79,142,247,.05); color: var(--text); font-weight: 600; }
+.acc-bar-wrap { display: flex; align-items: center; gap: .75rem; }
+.acc-bar { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.acc-fill { height: 100%; border-radius: 3px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- ══ HERO ══ -->
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">⚡ Research Project</div>
+      <h1>
+        Smarter Prompting<br>
+        Through <span class="grad">Adaptive Routing</span>
+      </h1>
+      <p class="hero-sub">
+        PromptCascade estimates problem difficulty and automatically selects
+        the cheapest strategy that still delivers the right answer.
+      </p>
+      <div class="hero-actions">
+        <a href="/demo" class="btn btn-primary">⚡ Try Live Demo</a>
+        <a href="/results" class="btn btn-secondary">📊 View Results</a>
+        <a href="/experiment" class="btn btn-secondary">🧪 Run Experiment</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ STAT STRIP ══ -->
+  {% if stats.num_queries %}
+  <div class="grid-4 mb-3">
+    <div class="stat-card" style="--line-color:var(--accent)">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-value" style="color:var(--accent)">{{ stats.cascade_accuracy }}%</div>
+      <div class="stat-label">Cascade Accuracy</div>
+    </div>
+    <div class="stat-card" style="--line-color:var(--green)">
+      <div class="stat-icon">💰</div>
+      <div class="stat-value" style="color:var(--green)">{{ stats.vs_ensemble_saving }}%</div>
+      <div class="stat-label">Cost Saved vs Ensemble</div>
+    </div>
+    <div class="stat-card" style="--line-color:var(--amber)">
+      <div class="stat-icon">📈</div>
+      <div class="stat-value" style="color:var(--amber)">+{{ stats.vs_direct_gain }}%</div>
+      <div class="stat-label">Accuracy Gain vs Direct</div>
+    </div>
+    <div class="stat-card" style="--line-color:var(--accent2)">
+      <div class="stat-icon">🔬</div>
+      <div class="stat-value" style="color:var(--accent2)">{{ stats.num_queries }}</div>
+      <div class="stat-label">Problems Evaluated</div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ══ PIPELINE ══ -->
+  <div class="card mb-3">
+    <div class="card-title">How It Works — 5-Step Pipeline</div>
+    <div class="pipeline">
+      <div class="pipe-step">
+        <div class="pipe-icon">❓</div>
+        <div class="pipe-title">Question In</div>
+        <div class="pipe-desc">Any domain — math, logic, QA, coding</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-icon">📐</div>
+        <div class="pipe-title">Difficulty Score</div>
+        <div class="pipe-desc">7 linguistic features → 0.0–1.0</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-icon">🔀</div>
+        <div class="pipe-title">Cascade Route</div>
+        <div class="pipe-desc">Threshold → cheapest sufficient strategy</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-icon">🤖</div>
+        <div class="pipe-title">LLM Execute</div>
+        <div class="pipe-desc">Run selected strategy, get answer</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-icon">✅</div>
+        <div class="pipe-title">Evaluate</div>
+        <div class="pipe-desc">Check accuracy, track cost & tokens</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STRATEGIES ══ -->
+  <div class="card-title">The 4 Strategies — Adaptive Cascade Selection</div>
+  <div class="grid-4 mt-1 mb-3">
+    <div class="strategy-card" style="--s-color:#10b981">
+      <div class="strategy-header">
+        <div class="strategy-name">🟢 Direct</div>
+        <div class="strategy-cost">1×</div>
+      </div>
+      <div class="strategy-range">Difficulty &lt; 0.30</div>
+      <div class="strategy-strength-bar"><div class="strategy-strength-fill" style="width:50%"></div></div>
+      <div class="strategy-meta">Ask directly — no scaffolding. Best for simple, factual questions.</div>
+    </div>
+    <div class="strategy-card" style="--s-color:#3b82f6">
+      <div class="strategy-header">
+        <div class="strategy-name">🔵 Reasoning</div>
+        <div class="strategy-cost">2.5×</div>
+      </div>
+      <div class="strategy-range">0.30 – 0.60</div>
+      <div class="strategy-strength-bar"><div class="strategy-strength-fill" style="width:65%"></div></div>
+      <div class="strategy-meta">Chain-of-Thought. Think step-by-step before answering.</div>
+    </div>
+    <div class="strategy-card" style="--s-color:#f59e0b">
+      <div class="strategy-header">
+        <div class="strategy-name">🟡 Verification</div>
+        <div class="strategy-cost">4×</div>
+      </div>
+      <div class="strategy-range">0.60 – 0.85</div>
+      <div class="strategy-strength-bar"><div class="strategy-strength-fill" style="width:80%"></div></div>
+      <div class="strategy-meta">Reason then self-verify. Two LLM calls for hard problems.</div>
+    </div>
+    <div class="strategy-card" style="--s-color:#ef4444">
+      <div class="strategy-header">
+        <div class="strategy-name">🔴 Ensemble</div>
+        <div class="strategy-cost">6×</div>
+      </div>
+      <div class="strategy-range">Difficulty &gt; 0.85</div>
+      <div class="strategy-strength-bar"><div class="strategy-strength-fill" style="width:90%"></div></div>
+      <div class="strategy-meta">3 candidates + verifier picks best. Maximum accuracy.</div>
+    </div>
+  </div>
+
+  <!-- ══ RESEARCH QUESTION ══ -->
+  <div class="card mb-3" style="border-color:rgba(79,142,247,.25); background:rgba(79,142,247,.05)">
+    <div style="display:flex; gap:1.25rem; align-items:flex-start">
+      <div style="font-size:2rem; line-height:1">🔬</div>
+      <div>
+        <div style="font-weight:700; font-size:1rem; margin-bottom:.4rem">Research Question</div>
+        <div style="font-size:1.05rem; color:var(--text-muted); font-style:italic; margin-bottom:.75rem">
+          "Should easy and difficult questions receive the same prompting strategy?"
+        </div>
+        <div style="font-size:.85rem; color:var(--text-muted)">
+          Our answer: <strong style="color:var(--text)">No.</strong>
+          A cascade router that picks the least expensive sufficient strategy
+          achieves <strong style="color:var(--green)">better accuracy at lower cost</strong>
+          than any single-strategy baseline.
+          <a href="/demo" style="color:var(--accent)">Try it live →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

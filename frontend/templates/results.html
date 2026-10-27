@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+{% block title %}Results Dashboard — PromptCascade{% endblock %}
+
+{% block head %}
+<style>
+/* ── File selector ── */
+.file-selector {
+  display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 1rem 1.25rem;
+  flex-wrap: wrap;
+}
+.file-selector label { font-size: .78rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
+.file-selector select { flex: 1; min-width: 200px; }
+.file-selector .exp-id {
+  font-size: .78rem; font-family: var(--mono);
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+/* ── Summary strip ── */
+.summary-strip { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 1.5rem; }
+@media(max-width:800px){ .summary-strip{ grid-template-columns: repeat(2,1fr) } }
+@media(max-width:480px){ .summary-strip{ grid-template-columns: 1fr 1fr } }
+.sum-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 1.25rem;
+  position: relative; overflow: hidden;
+}
+.sum-card::after {
+  content: ''; position: absolute;
+  bottom: 0; left: 0; right: 0; height: 3px;
+  background: var(--c, var(--accent));
+}
+.sum-val { font-size: 2rem; font-weight: 800; letter-spacing: -.04em; line-height: 1; margin-bottom: .25rem; }
+.sum-lbl { font-size: .72rem; color: var(--text-muted); font-weight: 500; }
+
+/* ── Comparison table ── */
+.cmp-table-wrap {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 1.5rem;
+}
+.cmp-table-header {
+  padding: 1rem 1.5rem; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.cmp-table-header h2 { font-size: .9rem; font-weight: 700; }
+.cmp-table { width: 100%; border-collapse: collapse; }
+.cmp-table th {
+  text-align: left; padding: .65rem 1.25rem;
+  font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-muted); border-bottom: 1px solid var(--border);
+  background: rgba(0,0,0,.2);
+}
+.cmp-table td { padding: .75rem 1.25rem; font-size: .85rem; border-bottom: 1px solid var(--border); }
+.cmp-table tr:last-child td { border-bottom: none; }
+.cmp-table tr.hl { background: rgba(79,142,247,.06); }
+.cmp-table tr.hl td { font-weight: 600; color: var(--text); }
+
+.acc-cell { display: flex; align-items: center; gap: .65rem; }
+.acc-bar { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; min-width: 60px; }
+.acc-fill { height: 100%; border-radius: 3px; }
+.acc-num { font-size: .8rem; font-family: var(--mono); font-weight: 600; min-width: 42px; text-align: right; }
+
+/* ── Two-column charts ── */
+.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+@media(max-width:720px){ .charts-grid{ grid-template-columns: 1fr } }
+
+.chart-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 1.25rem;
+}
+.chart-card h3 { font-size: .82rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+
+/* ── Distribution doughnut (pure CSS) ── */
+.dist-list { display: flex; flex-direction: column; gap: .6rem; }
+.dist-row { display: flex; align-items: center; gap: .75rem; }
+.dist-label { font-size: .78rem; font-weight: 600; width: 95px; }
+.dist-bar-wrap { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.dist-fill { height: 100%; border-radius: 4px; transition: width .6s ease; }
+.dist-pct { font-size: .72rem; font-family: var(--mono); color: var(--text-muted); width: 38px; text-align: right; }
+
+/* ── Strategy accuracy chart ── */
+.strat-acc-list { display: flex; flex-direction: column; gap: .8rem; }
+.strat-acc-row { }
+.strat-acc-header { display: flex; justify-content: space-between; margin-bottom: .3rem; }
+.strat-acc-name { font-size: .78rem; font-weight: 600; }
+.strat-acc-val  { font-size: .78rem; font-family: var(--mono); }
+.strat-acc-bar { height: 10px; background: var(--border); border-radius: 5px; overflow: hidden; }
+.strat-acc-fill { height: 100%; border-radius: 5px; transition: width .6s ease; }
+
+/* ── Figures gallery ── */
+.figures-section { margin-bottom: 1.5rem; }
+.figures-section h2 { font-size: .9rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+.fig-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 1rem; }
+@media(max-width:640px){ .fig-grid{ grid-template-columns:1fr } }
+
+.fig-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden;
+  cursor: pointer; transition: var(--transition);
+}
+.fig-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-glow); }
+.fig-label {
+  padding: .65rem 1rem; font-size: .72rem; font-weight: 700;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.fig-label span { color: var(--accent); font-size: .68rem; }
+.fig-img { width: 100%; display: block; background: #fff; }
+
+/* ── Lightbox ── */
+.lightbox {
+  position: fixed; inset: 0; z-index: 999;
+  background: rgba(0,0,0,.85); backdrop-filter: blur(8px);
+  display: none; place-items: center; cursor: pointer;
+}
+.lightbox.open { display: grid; }
+.lightbox img {
+  max-width: 90vw; max-height: 90vh;
+  border-radius: 12px; box-shadow: 0 24px 80px rgba(0,0,0,.6);
+}
+.lightbox-close {
+  position: absolute; top: 1.5rem; right: 1.5rem;
+  background: rgba(255,255,255,.1); color: white;
+  border: none; border-radius: 50%; width: 40px; height: 40px;
+  font-size: 1.2rem; cursor: pointer; display: grid; place-items: center;
+  transition: var(--transition);
+}
+.lightbox-close:hover { background: rgba(255,255,255,.2); }
+
+/* ── Empty state ── */
+.empty-dash {
+  text-align: center; padding: 4rem 2rem;
+  color: var(--text-faint);
+}
+.empty-dash .icon { font-size: 3rem; margin-bottom: 1rem; opacity: .4; }
+.empty-dash h2 { font-size: 1.1rem; font-weight: 700; color: var(--text-muted); margin-bottom: .5rem; }
+.empty-dash p  { font-size: .85rem; margin-bottom: 1.5rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div class="page-header">
+    <div class="eyebrow">📊 Results Dashboard</div>
+    <h1>Experiment Results</h1>
+    <p>Compare cascade performance against baselines, view strategy routing, and browse visualizations.</p>
+  </div>
+
+  {% if not result_files %}
+  <!-- ── No results yet ── -->
+  <div class="empty-dash">
+    <div class="icon">📭</div>
+    <h2>No experiments yet</h2>
+    <p>Run your first experiment to see results here.</p>
+    <a href="/experiment" class="btn btn-primary">🚀 Run Experiment</a>
+  </div>
+
+  {% else %}
+
+  <!-- ── File selector ── -->
+  <form method="get" action="/results" class="file-selector">
+    <label>Result File</label>
+    <select class="select" name="file" onchange="this.form.submit()">
+      {% for f in result_files %}
+      <option value="{{ f }}" {% if f == selected %}selected{% endif %}>{{ f }}</option>
+      {% endfor %}
+    </select>
+    {% if experiment_id %}
+    <div class="exp-id">ID: {{ experiment_id }}</div>
+    {% endif %}
+    <a href="/experiment" class="btn btn-secondary text-xs">+ New Experiment</a>
+  </form>
+
+  {% if rows %}
+
+  <!-- ── Summary strip ── -->
+  {% set cascade_row = rows | selectattr('highlight') | first %}
+  {% if cascade_row %}
+  <div class="summary-strip">
+    <div class="sum-card" style="--c:var(--accent)">
+      <div class="sum-val" style="color:var(--accent)">{{ cascade_row.accuracy }}%</div>
+      <div class="sum-lbl">Cascade Accuracy</div>
+    </div>
+    <div class="sum-card" style="--c:var(--green)">
+      <div class="sum-val" style="color:var(--green)">{{ cascade_row.cost }}</div>
+      <div class="sum-lbl">Total Cost Units</div>
+    </div>
+    <div class="sum-card" style="--c:var(--amber)">
+      <div class="sum-val" style="color:var(--amber)">{{ cascade_row.tokens }}</div>
+      <div class="sum-lbl">Tokens Used</div>
+    </div>
+    <div class="sum-card" style="--c:var(--accent2)">
+      <div class="sum-val" style="color:var(--accent2)">{{ cascade_row.exp_rate }}%</div>
+      <div class="sum-lbl">Expensive Stage Rate</div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ── Comparison table ── -->
+  <div class="cmp-table-wrap">
+    <div class="cmp-table-header">
+      <h2>Cascade vs Baselines</h2>
+      <span class="pill pill-blue">{{ rows | length }} methods</span>
+    </div>
+    <table class="cmp-table">
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Accuracy</th>
+          <th>Total Cost</th>
+          <th>Tokens</th>
+          <th>Efficiency</th>
+          <th>Exp. Stage</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr {% if r.highlight %}class="hl"{% endif %}>
+          <td>
+            {% if r.highlight %}
+            <span class="pill pill-blue">⚡ {{ r.name }}</span>
+            {% else %}
+            {{ r.name }}
+            {% endif %}
+          </td>
+          <td>
+            <div class="acc-cell">
+              <div class="acc-bar">
+                <div class="acc-fill" style="
+                  width:{{ r.accuracy }}%;
+                  background:{% if r.highlight %}var(--accent){% elif r.accuracy >= 90 %}var(--green){% elif r.accuracy >= 75 %}var(--amber){% else %}var(--text-faint){% endif %}">
+                </div>
+              </div>
+              <div class="acc-num">{{ r.accuracy }}%</div>
+            </div>
+          </td>
+          <td class="mono">{{ r.cost }}</td>
+          <td class="mono">{{ r.tokens }}</td>
+          <td class="mono">{{ r.eff }}</td>
+          <td>
+            {% if r.exp_rate != '—' %}
+            <span class="pill {% if r.exp_rate > 40 %}pill-amber{% else %}pill-green{% endif %}">
+              {{ r.exp_rate }}%
+            </span>
+            {% else %}—{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── Charts row ── -->
+  <div class="charts-grid">
+
+    <!-- Strategy distribution -->
+    <div class="chart-card">
+      <h3>Strategy Distribution</h3>
+      <div class="dist-list" id="distList"></div>
+    </div>
+
+    <!-- Per-strategy accuracy -->
+    <div class="chart-card">
+      <h3>Per-Strategy Accuracy</h3>
+      <div class="strat-acc-list" id="stratAccList"></div>
+    </div>
+
+  </div>
+
+  <!-- ── Figures gallery ── -->
+  {% if figures %}
+  <div class="figures-section">
+    <h2>Visualizations</h2>
+    <div class="fig-grid">
+      {% set fig_labels = {
+        'pareto_frontier.png':      'Pareto Frontier',
+        'accuracy_comparison.png':  'Accuracy Comparison',
+        'cost_efficiency.png':      'Cost Efficiency',
+        'strategy_distribution.png':'Strategy Distribution',
+        'ablation_study.png':       'Ablation Study'
+      } %}
+      {% for fname, b64 in figures.items() %}
+      <div class="fig-card" onclick="openLightbox(this)">
+        <div class="fig-label">
+          {{ fig_labels.get(fname, fname) }}
+          <span>Click to enlarge</span>
+        </div>
+        <img class="fig-img" src="data:image/png;base64,{{ b64 }}" alt="{{ fname }}" loading="lazy">
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div class="empty-dash">
+    <div class="icon">📂</div>
+    <h2>No data in this file</h2>
+    <p>The selected result file appears to be empty or malformed.</p>
+  </div>
+  {% endif %}
+
+  {% endif %}
+
+</div>
+
+<!-- ── Lightbox ── -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+/* ── Chart data from Jinja ── */
+const distData    = {{ dist_data | safe }};
+const stratAccData = {{ acc_data | safe }};
+
+/* ── Strategy distribution bars ── */
+(function renderDist() {
+  const el = document.getElementById('distList');
+  if (!el || !distData.length) return;
+  el.innerHTML = distData.map(d => `
+    <div class="dist-row">
+      <div class="dist-label" style="color:${d.color}">${capitalize(d.name)}</div>
+      <div class="dist-bar-wrap">
+        <div class="dist-fill" style="width:${d.pct}%;background:${d.color}"></div>
+      </div>
+      <div class="dist-pct">${d.pct}%</div>
+    </div>`).join('');
+})();
+
+/* ── Per-strategy accuracy bars ── */
+(function renderStratAcc() {
+  const el = document.getElementById('stratAccList');
+  if (!el || !stratAccData.length) return;
+  el.innerHTML = stratAccData.map(d => `
+    <div class="strat-acc-row">
+      <div class="strat-acc-header">
+        <div class="strat-acc-name" style="color:${d.color}">${capitalize(d.name)}</div>
+        <div class="strat-acc-val" style="color:${d.color}">${d.acc}%</div>
+      </div>
+      <div class="strat-acc-bar">
+        <div class="strat-acc-fill" style="width:${d.acc}%;background:${d.color}"></div>
+      </div>
+    </div>`).join('');
+})();
+
+/* ── Lightbox ── */
+function openLightbox(card) {
+  const img = card.querySelector('img');
+  document.getElementById('lightboxImg').src = img.src;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeLightbox();
+});
+
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+</script>
+{% endblock %}

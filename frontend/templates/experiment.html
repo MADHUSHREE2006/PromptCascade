@@ -1,0 +1,401 @@
+{% extends "base.html" %}
+{% block title %}Experiment Runner — PromptCascade{% endblock %}
+
+{% block head %}
+<style>
+.exp-layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+@media(max-width:860px){ .exp-layout{ grid-template-columns:1fr } }
+
+/* ── Config panel ── */
+.config-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.config-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.config-header h2 { font-size: .9rem; font-weight: 700; }
+.config-body { padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+.form-group { display: flex; flex-direction: column; gap: .35rem; }
+.form-group label { font-size: .78rem; font-weight: 600; color: var(--text-muted); }
+
+.slider-wrap { display: flex; align-items: center; gap: .75rem; }
+.slider {
+  flex: 1; -webkit-appearance: none; appearance: none;
+  height: 4px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent) var(--p,50%), var(--border) var(--p,50%));
+  outline: none; cursor: pointer;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--accent); border: 2px solid var(--bg);
+  box-shadow: 0 0 8px rgba(79,142,247,.5);
+}
+.slider-val {
+  font-size: .78rem; font-family: var(--mono); font-weight: 600;
+  color: var(--accent); width: 42px; text-align: right;
+}
+
+.toggle-wrap { display: flex; align-items: center; gap: .75rem; }
+.toggle {
+  position: relative; width: 40px; height: 22px; flex-shrink: 0;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-track {
+  position: absolute; inset: 0;
+  background: var(--border2); border-radius: 11px; cursor: pointer;
+  transition: var(--transition);
+}
+.toggle input:checked + .toggle-track { background: var(--accent); }
+.toggle-track::before {
+  content: ''; position: absolute;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: white; top: 3px; left: 3px;
+  transition: var(--transition);
+}
+.toggle input:checked + .toggle-track::before { transform: translateX(18px); }
+.toggle-label { font-size: .82rem; color: var(--text); }
+
+.run-btn {
+  width: 100%; padding: .75rem; font-size: .9rem;
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+}
+
+/* ── Log panel ── */
+.log-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.log-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .9rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.log-header h2 { font-size: .9rem; font-weight: 700; }
+.log-controls { display: flex; align-items: center; gap: .5rem; }
+
+/* Status indicator */
+.status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--text-faint);
+  transition: background .3s;
+}
+.status-dot.running {
+  background: var(--green);
+  animation: pulse 1s infinite;
+}
+.status-dot.done { background: var(--accent); }
+@keyframes pulse {
+  0%,100%{ opacity:1 } 50%{ opacity:.4 }
+}
+.status-label { font-size: .75rem; color: var(--text-muted); }
+
+.log-body {
+  flex: 1; padding: 1rem 1.25rem;
+  font-family: var(--mono); font-size: .75rem;
+  line-height: 1.7; color: var(--text-muted);
+  height: 420px; overflow-y: auto;
+  white-space: pre-wrap; word-break: break-all;
+}
+.log-body .log-line-info    { color: var(--text-muted); }
+.log-body .log-line-success { color: var(--green); }
+.log-body .log-line-warn    { color: var(--amber); }
+.log-body .log-line-error   { color: var(--red); }
+.log-body .log-line-header  { color: var(--accent); font-weight: 600; }
+.log-body .log-line-done    { color: var(--green); font-weight: 700; }
+
+.log-placeholder {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 100%; gap: .5rem; color: var(--text-faint); font-size: .85rem;
+  font-family: var(--font);
+}
+.log-placeholder .icon { font-size: 2.5rem; opacity: .3; }
+
+/* ── Previous results ── */
+.prev-results {
+  margin-top: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.prev-header {
+  padding: .9rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.prev-header h3 { font-size: .85rem; font-weight: 700; }
+.prev-list { padding: .75rem 1.25rem; display: flex; flex-direction: column; gap: .4rem; }
+.prev-item {
+  display: flex; align-items: center; gap: .75rem;
+  padding: .5rem .75rem; border-radius: 8px;
+  text-decoration: none; color: var(--text);
+  transition: var(--transition);
+  font-size: .82rem;
+}
+.prev-item:hover { background: var(--surface2); }
+.prev-item .name { flex: 1; color: var(--text-muted); font-family: var(--mono); }
+.prev-item .arrow { color: var(--accent); }
+.no-results { padding: 1.25rem; text-align: center; color: var(--text-faint); font-size: .82rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div class="page-header">
+    <div class="eyebrow">🧪 Experiment Runner</div>
+    <h1>Run & Compare Experiments</h1>
+    <p>Configure and launch a full experiment — cascade vs all baselines — right from this page.</p>
+  </div>
+
+  <div class="exp-layout">
+
+    <!-- ── LEFT: Config ── -->
+    <div>
+      <div class="config-panel">
+        <div class="config-header">
+          <h2>Configuration</h2>
+          <span class="pill pill-blue">Offline Mode</span>
+        </div>
+        <div class="config-body">
+
+          <!-- Name -->
+          <div class="form-group">
+            <label>Experiment Name</label>
+            <input class="input" id="expName" type="text"
+              value="my_experiment" placeholder="e.g. test_run" />
+          </div>
+
+          <!-- Samples slider -->
+          <div class="form-group">
+            <label>Total Samples</label>
+            <div class="slider-wrap">
+              <input class="slider" type="range" id="samplesSlider"
+                min="100" max="1000" step="100" value="200"
+                oninput="updateSlider(this)">
+              <div class="slider-val" id="samplesVal">200</div>
+            </div>
+            <div style="font-size:.7rem;color:var(--text-faint)">
+              Split 60/20/20 → <span id="testCount">40</span> test problems
+            </div>
+          </div>
+
+          <!-- Baselines toggle -->
+          <div class="form-group">
+            <label>Options</label>
+            <div class="toggle-wrap">
+              <label class="toggle">
+                <input type="checkbox" id="baselinesToggle" checked>
+                <div class="toggle-track"></div>
+              </label>
+              <span class="toggle-label">Run baseline comparisons</span>
+            </div>
+            <div class="toggle-wrap mt-1">
+              <label class="toggle">
+                <input type="checkbox" id="vizToggle" checked>
+                <div class="toggle-track"></div>
+              </label>
+              <span class="toggle-label">Generate visualizations</span>
+            </div>
+          </div>
+
+          <!-- Info -->
+          <div class="alert alert-info" style="font-size:.78rem">
+            ⏱ Estimated time:
+            <strong id="timeEst">~30s</strong>
+            (offline mode, no API costs)
+          </div>
+
+          <button class="btn btn-primary run-btn" id="runBtn" onclick="startExperiment()">
+            🚀 Run Experiment
+          </button>
+        </div>
+      </div>
+
+      <!-- Previous results -->
+      <div class="prev-results">
+        <div class="prev-header">
+          <h3>Previous Experiments</h3>
+          <a href="/results" class="btn btn-secondary text-xs">View All →</a>
+        </div>
+        {% if result_files %}
+        <div class="prev-list">
+          {% for f in result_files %}
+          <a class="prev-item" href="/results?file={{ f }}">
+            <span>📄</span>
+            <span class="name">{{ f }}</span>
+            <span class="arrow">→</span>
+          </a>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-results">No experiments yet — run one above!</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ── RIGHT: Log ── -->
+    <div>
+      <div class="log-panel">
+        <div class="log-header">
+          <h2>Experiment Log</h2>
+          <div class="log-controls">
+            <div class="status-dot" id="statusDot"></div>
+            <div class="status-label" id="statusLabel">Idle</div>
+            <button class="btn btn-secondary text-xs" onclick="clearLog()">Clear</button>
+          </div>
+        </div>
+        <div class="log-body" id="logBody">
+          <div class="log-placeholder">
+            <div class="icon">🧪</div>
+            <div>Configure and start an experiment<br>to see live output here</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let logLines = 0;
+let sse = null;
+
+function updateSlider(el) {
+  const v = parseInt(el.value);
+  document.getElementById('samplesVal').textContent = v;
+  document.getElementById('testCount').textContent = Math.round(v * 0.2);
+  // estimate: ~0.15s per sample call total
+  const secs = Math.round(v * 0.15);
+  document.getElementById('timeEst').textContent =
+    secs < 60 ? `~${secs}s` : `~${Math.round(secs/60)}min`;
+  // update slider gradient
+  const pct = ((v - 100) / 900 * 100).toFixed(1);
+  el.style.setProperty('--p', pct + '%');
+}
+// init
+updateSlider(document.getElementById('samplesSlider'));
+
+function setStatus(state) {
+  const dot   = document.getElementById('statusDot');
+  const label = document.getElementById('statusLabel');
+  dot.className = 'status-dot ' + state;
+  label.textContent = state === 'running' ? 'Running…' :
+                      state === 'done'    ? 'Complete' : 'Idle';
+}
+
+function clearLog() {
+  logLines = 0;
+  document.getElementById('logBody').innerHTML =
+    `<div class="log-placeholder">
+      <div class="icon">🧪</div>
+      <div>Log cleared</div>
+    </div>`;
+  setStatus('');
+}
+
+function appendLog(line) {
+  const body = document.getElementById('logBody');
+
+  // Remove placeholder if still showing
+  if (logLines === 0) body.innerHTML = '';
+  logLines++;
+
+  const div = document.createElement('div');
+  let cls = 'log-line-info';
+  if (line.startsWith('=') || line.startsWith('-'))   cls = 'log-line-header';
+  else if (line.includes('ERROR') || line.includes('Traceback')) cls = 'log-line-error';
+  else if (line.includes('WARNING'))                  cls = 'log-line-warn';
+  else if (line.includes('completed') || line.includes('saved')) cls = 'log-line-success';
+  else if (line === '__DONE__') {
+    cls = 'log-line-done';
+    line = '✅ Experiment finished — view results →';
+    // Show results link
+    setTimeout(() => addResultsLink(), 300);
+  }
+
+  div.className = cls;
+  div.textContent = line;
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+}
+
+function addResultsLink() {
+  const body = document.getElementById('logBody');
+  const a = document.createElement('a');
+  a.href = '/results';
+  a.style.cssText =
+    'display:inline-flex;align-items:center;gap:.4rem;margin-top:.5rem;' +
+    'color:var(--accent);font-family:var(--font);font-size:.8rem;font-weight:600;text-decoration:none;' +
+    'background:rgba(79,142,247,.1);padding:.4rem .8rem;border-radius:8px;border:1px solid rgba(79,142,247,.2)';
+  a.innerHTML = '📊 View Results →';
+  body.appendChild(a);
+  body.scrollTop = body.scrollHeight;
+}
+
+async function startExperiment() {
+  const name     = document.getElementById('expName').value.trim() || 'my_experiment';
+  const samples  = parseInt(document.getElementById('samplesSlider').value);
+  const baselines = document.getElementById('baselinesToggle').checked;
+
+  document.getElementById('runBtn').disabled = true;
+  setStatus('running');
+  logLines = 0;
+  document.getElementById('logBody').innerHTML = '';
+  appendLog('Starting experiment: ' + name);
+
+  // Close any previous SSE
+  if (sse) { sse.close(); sse = null; }
+
+  // Start experiment via API
+  const res = await fetch('/api/run_experiment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, samples, baselines })
+  });
+  const json = await res.json();
+  if (json.error) {
+    appendLog('ERROR: ' + json.error);
+    setStatus('');
+    document.getElementById('runBtn').disabled = false;
+    return;
+  }
+
+  // Stream log via SSE
+  sse = new EventSource('/api/experiment_log');
+  sse.onmessage = e => {
+    const line = JSON.parse(e.data);
+    appendLog(line);
+    if (line === '__DONE__') {
+      sse.close();
+      setStatus('done');
+      document.getElementById('runBtn').disabled = false;
+      // Reload page after short delay to refresh results list
+      setTimeout(() => location.reload(), 2500);
+    }
+  };
+  sse.onerror = () => {
+    sse.close();
+    setStatus('done');
+    document.getElementById('runBtn').disabled = false;
+  };
+}
+</script>
+{% endblock %}

@@ -1,0 +1,95 @@
+# PromptCascade Configuration
+
+# LLM Configuration (Offline Mode - No API Required)
+llm:
+  provider: "offline"  # Using mock responses for research/testing
+  model: "mock-llm"
+  temperature: 0.7
+  max_tokens: 2048
+  # No API key needed in offline mode!
+
+# Difficulty Estimation
+difficulty:
+  # Features for difficulty estimation
+  features:
+    - "query_length"
+    - "lexical_complexity"
+    - "syntactic_depth"
+    - "numerical_complexity"
+    - "domain_specificity"
+  
+  # Thresholds for cascade routing
+  thresholds:
+    easy: 0.3      # < 0.3: direct prompt
+    moderate: 0.6  # 0.3-0.6: structured reasoning
+    hard: 0.85     # 0.6-0.85: reasoning + verification
+    # > 0.85: multiple candidates + verifier
+
+# Prompt Strategies
+strategies:
+  direct:
+    name: "Direct Prompting"
+    cost_multiplier: 1.0
+    
+  reasoning:
+    name: "Chain-of-Thought Reasoning"
+    cost_multiplier: 2.5
+    
+  verification:
+    name: "Reasoning + Verification"
+    cost_multiplier: 4.0
+    
+  ensemble:
+    name: "Multiple Candidates + Verifier"
+    cost_multiplier: 6.0
+    num_candidates: 3
+
+# Evaluation
+evaluation:
+  metrics:
+    - "accuracy"
+    - "latency"
+    - "total_tokens"
+    - "cost"
+    - "accuracy_per_1k_tokens"
+  
+  baselines:
+    - "always_direct"
+    - "always_reasoning"
+    - "always_verification"
+    - "always_ensemble"
+
+# Dataset Configuration
+data:
+  domains:
+    - "mathematical_reasoning"
+    - "logical_reasoning"
+    - "question_answering"
+    - "coding"
+  
+  min_samples_per_domain: 250
+  total_samples: 1000
+  
+  split:
+    train: 0.6
+    validation: 0.2
+    test: 0.2
+
+# Experiment Configuration
+experiment:
+  random_seed: 42
+  num_runs: 5
+  save_predictions: true
+  save_metrics: true
+  
+  ablation:
+    features_to_ablate:
+      - "predicted_confidence"
+      - "task_family"
+      - "historical_performance"
+
+# Logging
+logging:
+  level: "INFO"
+  save_logs: true
+  log_dir: "logs"

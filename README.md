@@ -1,532 +1,251 @@
-# PromptCascade: Difficulty-Adaptive Prompt Strategy Selection
+<div align="center">
 
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+# 🌊 PromptCascade
 
-> A research framework for optimizing LLM prompting strategies based on problem difficulty
+### Difficulty-adaptive prompting for more efficient LLM workflows
 
-## 📋 Table of Contents
+Route each query to the right level of reasoning: keep simple requests lightweight and give harder ones more verification.
 
-- [Overview](#overview)
-- [Research Question](#research-question)
-- [Key Features](#key-features)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Project Structure](#project-structure)
-- [Methodology](#methodology)
-- [Running Experiments](#running-experiments)
-- [Results & Visualization](#results--visualization)
-- [Configuration](#configuration)
-- [For Final Year Students](#for-final-year-students)
-- [Citation](#citation)
-- [License](#license)
+<p>
+  <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white" alt="Python 3.10+" />
+  <img src="https://img.shields.io/badge/LLM-Offline%20demo-2ea44f" alt="Offline demo" />
+  <img src="https://img.shields.io/badge/Web%20UI-Flask-000000?logo=flask&logoColor=white" alt="Flask web interface" />
+</p>
 
----
+<p>
+  <a href="#how-to-run"><strong>Get started »</strong></a>
+  &nbsp;·&nbsp;
+  <a href="#architecture-and-workflow">Explore the workflow</a>
+  &nbsp;·&nbsp;
+  <a href="#features">View features</a>
+</p>
 
-## 🎯 Overview
-
-PromptCascade is a research framework that addresses a fundamental question in LLM optimization: **Should easy and difficult questions receive the same prompting strategy?**
-
-Current approaches apply uniform strategies (always-direct, always-reasoning) across all queries, leading to:
-- **Over-computation**: Wasting resources on simple problems
-- **Under-computation**: Using insufficient strategies for complex problems
-- **Suboptimal cost-accuracy trade-offs**
-
-PromptCascade solves this by:
-1. **Estimating problem difficulty** using linguistic and semantic features
-2. **Routing queries adaptively** to the least expensive sufficient strategy
-3. **Optimizing the quality-compute Pareto frontier** explicitly
+</div>
 
 ---
 
-## 🔬 Research Question
+> **At a glance:** Analyze query difficulty → choose a prompting strategy → evaluate quality and cost.
 
-**Can we route queries to the least expensive sufficient prompting strategy based on problem difficulty, achieving better cost-accuracy trade-offs than uniform baselines?**
+<div align="center">
 
----
+| 🧭 Adaptive routing | 🧠 Four strategies | 📊 Evaluation | 🖥️ Web interface |
+|:---:|:---:|:---:|:---:|
+| Difficulty-based decisions | Direct to Ensemble | Baselines and metrics | Try query routing |
 
-## ✨ Key Features
+</div>
 
-### 🧠 Difficulty Estimator
-- **7 linguistic features**: query length, lexical complexity, syntactic depth, numerical complexity, domain specificity, keyword density, question complexity
-- **Heuristic + ML modes**: Rule-based or supervised learning
-- **Confidence scoring**: Estimates prediction confidence
+## Contents
 
-### 🔀 Cascade Router
-- **4 strategies**: Direct, Reasoning (CoT), Verification, Ensemble
-- **Adaptive thresholds**: Optimizable based on validation data
-- **Cost-aware**: Explicit cost multipliers (1.0×, 2.5×, 4.0×, 6.0×)
+[Problem Statement](#problem-statement) · [Our Solution](#our-solution) · [Features](#features) · [Architecture](#architecture-and-workflow) · [Technologies](#tools-and-technologies) · [Run](#how-to-run) · [Configuration](#configuration)
 
-### 📊 Comprehensive Evaluation
-- **1,000+ problems**: 4 domains (math, logic, QA, coding)
-- **Multiple baselines**: Always-direct, always-reasoning, always-verification, always-ensemble
-- **Rich metrics**: Accuracy, latency, tokens, cost efficiency, Pareto frontier
+## Problem Statement
 
-### 🔬 Research Tools
-- **Ablation studies**: Feature importance analysis
-- **Multiple trials**: Statistical significance testing
-- **Visualizations**: Pareto plots, strategy distributions, comparisons
-- **Result persistence**: JSON export for analysis
+Using one prompting strategy for every question can waste computation on simple tasks or provide too little support for complex ones. A useful system should adapt its strategy to the apparent difficulty of each query while making the routing decision and its relative cost visible.
 
----
+## Our Solution
 
-## 🚀 Installation
+PromptCascade extracts linguistic and task-related features from each query, calculates a difficulty score, and uses that score to select one of four prompting strategies. Its evaluation tools compare adaptive routing with fixed-strategy baselines. The project runs with mock LLM responses by default, so the demo does not require API credentials.
 
-### Prerequisites
-- Python 3.8 or higher
-- pip package manager
-- (Optional) API keys for OpenAI, Anthropic, or Groq
+## Features
 
-### Step 1: Clone or Download
-```bash
-cd PromptCascade
+- Difficulty scoring from query length, lexical complexity, syntactic depth, numerical complexity, domain specificity, keyword density, and question complexity.
+- Confidence and difficulty-category estimates to accompany routing decisions.
+- Four strategies: Direct, Reasoning, Verification, and Ensemble.
+- Configurable difficulty thresholds and relative strategy cost multipliers.
+- Synthetic datasets spanning mathematical reasoning, logical reasoning, question answering, and coding.
+- Evaluation against fixed-strategy baselines, with metrics for accuracy, latency, tokens, and cost.
+- Experiment result export to JSON and visualizations such as strategy distributions and cost/accuracy comparisons.
+- Flask web interface for trying query routing and viewing experiment results.
+
+### Strategy guide
+
+| Strategy | What it does | Relative cost |
+|---|---|---:|
+| ⚡ **Direct** | Responds without additional reasoning steps. | 1× |
+| 🧩 **Reasoning** | Uses a structured reasoning prompt. | 2.5× |
+| ✅ **Verification** | Adds a verification step to the response. | 4× |
+| 🗳️ **Ensemble** | Generates multiple candidates and selects an answer. | 6× |
+
+## Architecture and Workflow
+
+PromptCascade has two connected workflows: **query routing**, which picks a strategy for a query, and **experiment evaluation**, which measures the routing system over a dataset.
+
+### 1. Query routing
+
+The CLI and Flask interface feed queries into the same difficulty-estimation and routing pipeline. The router selects one strategy based on the configured thresholds; each strategy uses the configured LLM client or a mock response when no client is supplied.
+
+```mermaid
+flowchart LR
+    subgraph INPUTS["① Inputs"]
+        CLI["CLI<br/>main.py"]
+        WEB["Flask web app<br/>frontend/app.py"]
+        QUERY["Query<br/>+ optional metadata"]
+        CLI --> QUERY
+        WEB --> QUERY
+    end
+
+    subgraph ROUTING["② Difficulty-based routing"]
+        FEATURES["Difficulty estimator<br/>Extract 7 query features"]
+        SCORE["Difficulty score<br/>Category + confidence"]
+        ROUTER["Prompt router<br/>Apply thresholds"]
+        QUERY --> FEATURES --> SCORE --> ROUTER
+    end
+
+    subgraph STRATEGIES["③ Selected prompt strategy"]
+        DIRECT["⚡ Direct<br/>1×"]
+        REASON["🧩 Reasoning<br/>2.5×"]
+        VERIFY["✅ Verification<br/>4×"]
+        ENSEMBLE["🗳️ Ensemble<br/>6×"]
+        ROUTER -->|"Easy"| DIRECT
+        ROUTER -->|"Moderate"| REASON
+        ROUTER -->|"Hard"| VERIFY
+        ROUTER -->|"Very hard"| ENSEMBLE
+        LLM["LLM client<br/>or offline mock"]
+        DIRECT --> LLM
+        REASON --> LLM
+        VERIFY --> LLM
+        ENSEMBLE --> LLM
+    end
+
+    LLM --> RESPONSE["Answer / routing result"]
+
+    classDef input fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+    classDef process fill:#ede9fe,stroke:#7c3aed,color:#3b0764
+    classDef strategy fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef output fill:#fef3c7,stroke:#d97706,color:#78350f
+    class CLI,WEB,QUERY input
+    class FEATURES,SCORE,ROUTER process
+    class DIRECT,REASON,VERIFY,ENSEMBLE,LLM strategy
+    class RESPONSE output
 ```
 
-### Step 2: Install Dependencies
-```bash
-pip install -r requirements.txt
+### 2. Experiment and evaluation
+
+The experiment runner creates a dataset, evaluates the adaptive cascade and (optionally) fixed-strategy baselines, then stores metrics and generated charts in `results\`.
+
+```mermaid
+flowchart LR
+    subgraph SETUP["① Prepare"]
+        COMMAND["CLI command<br/>demo / experiment / ablation"]
+        LOADER["DatasetLoader<br/>Create and split problems"]
+        COMMAND --> LOADER
+    end
+
+    subgraph RUN["② Evaluate"]
+        RUNNER["ExperimentRunner"]
+        CASCADE["Adaptive cascade<br/>Estimator → Router → Strategy"]
+        BASELINES["Optional baselines<br/>Always Direct / Reasoning /<br/>Verification / Ensemble"]
+        LOADER --> RUNNER
+        RUNNER --> CASCADE
+        RUNNER -. "when enabled" .-> BASELINES
+    end
+
+    subgraph OUTPUT["③ Inspect results"]
+        EVALUATOR["Evaluator + comparator<br/>Accuracy · latency · tokens · cost"]
+        JSON["Experiment metrics<br/>JSON"]
+        PLOTS["Visualizer<br/>Charts"]
+        RESULTS[("results\\")]
+        CASCADE --> EVALUATOR
+        BASELINES --> EVALUATOR
+        EVALUATOR --> JSON --> RESULTS
+        EVALUATOR --> PLOTS --> RESULTS
+    end
+
+    classDef setup fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+    classDef run fill:#ede9fe,stroke:#7c3aed,color:#3b0764
+    classDef output fill:#dcfce7,stroke:#16a34a,color:#14532d
+    class COMMAND,LOADER setup
+    class RUNNER,CASCADE,BASELINES run
+    class EVALUATOR,JSON,PLOTS,RESULTS output
 ```
 
-### Step 3: Verify Installation
-```bash
-python -c "import sys; sys.path.append('src'); from difficulty_estimator import DifficultyEstimator; print('✓ Installation successful')"
+#### Workflow at a glance
+
+| Step | Component | Responsibility |
+|---|---|---|
+| 1 | CLI or Flask UI | Accept a query or start an experiment. |
+| 2 | Difficulty estimator | Extract query features and calculate difficulty, category, and confidence. |
+| 3 | Prompt router | Compare difficulty to configured thresholds and choose a strategy. |
+| 4 | Strategy | Build and run the selected prompt; use mock responses when no LLM client is configured. |
+| 5 | Evaluator and visualizer | For experiments, compare metrics and save JSON results and charts. |
+
+## Tools and Technologies
+
+- **Python** for the application and experiment logic.
+- **NumPy** for feature calculations and numerical operations.
+- **scikit-learn** and **XGBoost** for machine-learning support included in the environment.
+- **PyYAML** for reading `config.yaml`.
+- **Matplotlib**, **Seaborn**, and **Plotly** for visualization.
+- **Flask** for the optional web interface.
+- **pytest** for tests.
+- **OpenAI**, **Anthropic**, and **Groq** Python packages are listed as optional LLM integrations. The included demo uses mock responses when no LLM client is provided.
+
+## How to Run
+
+### Requirements
+
+- Python 3.10 or later
+- pip
+
+Run these commands from the repository root in PowerShell:
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
-**Note**: PromptCascade runs in **offline mode** using mock LLM responses. No API keys required!
+If PowerShell prevents virtual-environment activation, use the Python executable in the environment directly:
 
----
-
-## ⚡ Quick Start
-
-### Run Demo Experiment (Offline Mode)
-
-```bash
-# Demo runs in offline mode with mock LLM responses
-python src/experiment_runner.py
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe main.py demo
 ```
 
-This will:
-1. Generate a synthetic dataset (100 problems)
-2. Run adaptive cascade evaluation
-3. Compare against 4 baselines
-4. Save results to `results/demo_eval.json`
+### Run the demo
 
-**All using mock LLM responses - perfect for research and development!**
-
-### Run Full Experiment
-
-```python
-from src.experiment_runner import ExperimentRunner
-from src.dataset_loader import DatasetLoader
-
-# Initialize
-runner = ExperimentRunner(config_path="config.yaml")
-
-# Load or generate dataset
-loader = DatasetLoader()
-dataset = loader.create_combined_dataset(samples_per_domain=250)
-train, val, test = loader.split_dataset(dataset)
-
-# Run evaluation
-results = runner.run_full_evaluation(
-    test, 
-    run_baselines=True, 
-    experiment_name="my_experiment"
-)
-
-# Results saved to results/my_experiment.json
+```powershell
+python main.py demo
 ```
 
----
+This runs an offline demo using mock LLM responses. Results are saved to `results\demo.json`, with figures in `results\figures\`.
 
-## 📁 Project Structure
+### Run an experiment
 
-```
-PromptCascade/
-│
-├── src/                           # Source code
-│   ├── __init__.py
-│   ├── difficulty_estimator.py    # Difficulty prediction (7 features)
-│   ├── prompt_router.py           # Cascade routing logic
-│   ├── dataset_loader.py          # Data generation & loading
-│   ├── experiment_runner.py       # Experiment orchestration
-│   ├── visualization.py           # Plotting tools
-│   │
-│   ├── strategies/                # Prompting strategies
-│   │   ├── __init__.py
-│   │   ├── base_strategy.py      # Abstract base class
-│   │   ├── direct_strategy.py    # Direct prompting (1.0×)
-│   │   ├── reasoning_strategy.py # Chain-of-Thought (2.5×)
-│   │   ├── verification_strategy.py  # With verification (4.0×)
-│   │   └── ensemble_strategy.py  # Multiple candidates (6.0×)
-│   │
-│   └── evaluation/                # Evaluation framework
-│       ├── __init__.py
-│       ├── evaluator.py          # Metrics tracking
-│       └── comparator.py         # Baseline comparison
-│
-├── data/                          # Datasets (generated)
-├── results/                       # Experiment results
-├── experiments/                   # Experiment configs
-├── notebooks/                     # Jupyter notebooks
-├── docs/                          # Documentation
-│   └── RESEARCH_PAPER_TEMPLATE.md
-│
-├── config.yaml                    # Main configuration
-├── requirements.txt               # Python dependencies
-├── .env.example                   # Environment template
-├── .gitignore
-└── README.md                      # This file
+```powershell
+python main.py experiment --samples 1000 --name my_experiment
 ```
 
----
+Useful options:
 
-## 🔬 Methodology
+- `--no-baselines` skips fixed-strategy comparisons.
+- `--no-visualize` skips chart generation.
+- `--config path\to\config.yaml` selects a configuration file. Place this global option before the command, for example `python main.py --config config.yaml demo`.
 
-### Difficulty Estimation Pipeline
+### Run an ablation study
 
-```
-Query → Feature Extraction → Difficulty Score (0.0-1.0) → Category
-```
-
-**7 Features**:
-1. **Query Length**: Normalized word count
-2. **Lexical Complexity**: Word sophistication
-3. **Syntactic Depth**: Sentence structure
-4. **Numerical Complexity**: Math operations
-5. **Domain Specificity**: Technical terms
-6. **Keyword Density**: Reasoning indicators
-7. **Question Complexity**: Multi-part questions
-
-**Difficulty Categories**:
-- Easy (0.0-0.3): Simple factual questions
-- Moderate (0.3-0.6): Requires logical steps
-- Hard (0.6-0.85): Complex reasoning
-- Very Hard (0.85-1.0): Expert-level problems
-
-### Cascade Routing Logic
-
-```python
-if difficulty < 0.3:
-    strategy = Direct              # Fast, cheap
-elif difficulty < 0.6:
-    strategy = Reasoning (CoT)     # Moderate cost
-elif difficulty < 0.85:
-    strategy = Verification        # High accuracy
-else:
-    strategy = Ensemble            # Maximum accuracy
+```powershell
+python main.py ablation --samples 500 --name feature_ablation
 ```
 
-### Evaluation Metrics
+### Start the web interface
 
-1. **Primary Metrics**:
-   - Accuracy (% correct)
-   - Total tokens consumed
-   - Total latency (seconds)
-   - Total cost (normalized units)
+Install the Flask dependency and launch the app:
 
-2. **Derived Metrics**:
-   - Accuracy per 1,000 tokens
-   - Cost efficiency (accuracy/cost)
-   - Expensive stage rate (% verification/ensemble)
-
-3. **Pareto Analysis**:
-   - Quality-compute frontier
-   - Dominated vs. non-dominated strategies
-
----
-
-## 🧪 Running Experiments
-
-### 1. Basic Cascade Evaluation
-
-```python
-from src.experiment_runner import ExperimentRunner
-
-runner = ExperimentRunner()
-dataset = runner.dataset_loader.create_combined_dataset()
-_, _, test = runner.dataset_loader.split_dataset(dataset)
-
-results = runner.run_cascade_experiment(test, "my_cascade")
-metrics = results.compute_metrics()
-print(metrics)
+```powershell
+python -m pip install -r frontend\requirements.txt
+python frontend\app.py
 ```
 
-### 2. Full Comparison (Cascade + Baselines)
+Open [http://localhost:5000](http://localhost:5000) in a browser. Stop the server with `Ctrl+C`.
 
-```python
-results = runner.run_full_evaluation(
-    test, 
-    run_baselines=True,
-    experiment_name="full_comparison"
-)
-# Saves to results/full_comparison.json
+### Run tests
+
+```powershell
+python -m pytest
 ```
 
-### 3. Ablation Study
+## Configuration
 
-```python
-ablation_results = runner.run_ablation_study(
-    test,
-    experiment_name="ablation_study"
-)
-# Tests: no_confidence, no_task_family, no_historical, random_routing
-```
-
-### 4. Multiple Trials (Statistical Significance)
-
-```python
-multi_trial_results = runner.run_multiple_trials(
-    test,
-    num_trials=5,
-    experiment_name="statistical_test"
-)
-# Computes mean, std, min, max across trials
-```
-
-### 5. Generate Visualizations
-
-```python
-from src.visualization import PromptCascadeVisualizer
-import json
-
-with open('results/full_comparison.json', 'r') as f:
-    results = json.load(f)
-
-visualizer = PromptCascadeVisualizer(output_dir="results/figures")
-visualizer.generate_all_plots(results)
-# Creates: pareto_frontier.png, strategy_distribution.png, etc.
-```
-
----
-
-## 📊 Results & Visualization
-
-### Expected Results
-
-| Method | Accuracy | Cost | Cost Efficiency | Exp. Stage Rate |
-|--------|----------|------|-----------------|-----------------|
-| Always-Direct | ~0.70 | 100 | 0.0070 | 0% |
-| Always-Reasoning | ~0.80 | 250 | 0.0032 | 0% |
-| Always-Verification | ~0.83 | 400 | 0.0021 | 0% |
-| Always-Ensemble | ~0.87 | 600 | 0.0015 | 0% |
-| **PromptCascade** | **~0.85** | **~150** | **~0.0057** | **25%** |
-
-### Generated Figures
-
-1. **Pareto Frontier**: `results/figures/pareto_frontier.png`
-2. **Strategy Distribution**: `results/figures/strategy_distribution.png`
-3. **Accuracy Comparison**: `results/figures/accuracy_comparison.png`
-4. **Cost Efficiency**: `results/figures/cost_efficiency.png`
-5. **Ablation Study**: `results/figures/ablation_study.png`
-
----
-
-## ⚙️ Configuration
-
-Edit `config.yaml` to customize:
-
-```yaml
-# LLM Configuration
-llm:
-  provider: "openai"  # or "anthropic", "groq", "local"
-  model: "gpt-3.5-turbo"
-  temperature: 0.7
-
-# Difficulty Thresholds
-difficulty:
-  thresholds:
-    easy: 0.3
-    moderate: 0.6
-    hard: 0.85
-
-# Cost Multipliers
-strategies:
-  direct:
-    cost_multiplier: 1.0
-  reasoning:
-    cost_multiplier: 2.5
-  verification:
-    cost_multiplier: 4.0
-  ensemble:
-    cost_multiplier: 6.0
-
-# Dataset
-data:
-  total_samples: 1000
-  domains:
-    - mathematical_reasoning
-    - logical_reasoning
-    - question_answering
-    - coding
-```
-
----
-
-## 🎓 For Final Year Students
-
-This project is designed as a complete final year research project. Here's how to use it:
-
-### Project Timeline (12-16 weeks)
-
-**Weeks 1-2: Setup & Literature Review**
-- Install and configure the framework
-- Read `docs/RESEARCH_PAPER_TEMPLATE.md`
-- Review related work on prompting and adaptive computation
-
-**Weeks 3-4: Data Preparation**
-- Generate or collect datasets
-- Annotate difficulty labels (if using real benchmarks)
-- Validate data quality
-
-**Weeks 5-8: Experimentation**
-- Run baseline comparisons
-- Conduct ablation studies
-- Perform multiple trials for statistical significance
-- Optimize thresholds on validation set
-
-**Weeks 9-10: Analysis**
-- Generate all visualizations
-- Analyze Pareto frontier
-- Identify failure modes (over-routing, under-routing)
-- Compare against state-of-the-art
-
-**Weeks 11-12: Writing**
-- Use `docs/RESEARCH_PAPER_TEMPLATE.md` as starting point
-- Fill in methodology, results, discussion sections
-- Create presentation slides
-
-**Weeks 13-14: Refinement**
-- Address advisor feedback
-- Run additional experiments if needed
-- Polish figures and tables
-
-**Weeks 15-16: Final Submission**
-- Proofread paper
-- Prepare demo/presentation
-- Submit code + paper
-
-### Research Extensions
-
-1. **Advanced Difficulty Estimators**:
-   - Train neural networks on large-scale data
-   - Use LLM embeddings as features
-   - Incorporate domain-specific models
-
-2. **Dynamic Routing**:
-   - Online learning from user feedback
-   - Contextual bandit algorithms
-   - Reinforcement learning for threshold optimization
-
-3. **Multi-Task Transfer**:
-   - Transfer difficulty estimators across domains
-   - Meta-learning for new task types
-
-4. **Cost Modeling**:
-   - Explicit token prediction models
-   - Latency-aware routing
-   - Budget-constrained optimization
-
-5. **Real-World Deployment**:
-   - A/B testing in production
-   - User study on perceived quality
-   - API wrapper for easy integration
-
-### Deliverables Checklist
-
-- [ ] Working code (this repository)
-- [ ] Experimental results (JSON files in `results/`)
-- [ ] Visualizations (figures in `results/figures/`)
-- [ ] Research paper (using template in `docs/`)
-- [ ] Presentation slides (create using results)
-- [ ] Demo video (optional but recommended)
-- [ ] README with clear instructions (this file)
-
----
-
-## 📚 Additional Resources
-
-### Recommended Reading
-
-1. **Prompting Strategies**:
-   - Wei et al. (2022) - "Chain-of-Thought Prompting"
-   - Kojima et al. (2022) - "Zero-Shot CoT"
-   - Wang et al. (2023) - "Self-Consistency"
-
-2. **Adaptive Computation**:
-   - Graves (2016) - "Adaptive Computation Time"
-   - Dehghani et al. (2019) - "Universal Transformers"
-
-3. **Difficulty Estimation**:
-   - Settles & Meeder (2016) - "Second Language Acquisition Difficulty"
-   - Maddela & Xu (2018) - "Text Complexity Assessment"
-
-### Useful Commands
-
-```bash
-# Run tests (if implemented)
-pytest tests/
-
-# Generate dataset only
-python src/dataset_loader.py
-
-# Test difficulty estimator
-python src/difficulty_estimator.py
-
-# Test router
-python src/prompt_router.py
-
-# Quick visualization test
-python src/visualization.py
-```
-
----
-
-## 🤝 Contributing
-
-This is a research project template. Feel free to:
-- Add new prompting strategies
-- Implement additional difficulty features
-- Create new evaluation metrics
-- Extend to other domains
-
----
-
-## 📄 Citation
-
-If you use this framework in your research, please cite:
-
-```bibtex
-@article{promptcascade2024,
-  title={PromptCascade: Difficulty-Adaptive Prompt Strategy Selection},
-  author={[Your Name]},
-  journal={[Conference/Journal]},
-  year={2024}
-}
-```
-
----
-
-## 📧 Contact
-
-For questions or issues:
-- Open an issue on GitHub
-- Email: [your.email@university.edu]
-
----
-
-## 📜 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- Inspired by research on adaptive computation and prompt engineering
-- Built with Python, matplotlib, seaborn, scikit-learn
-- Designed for educational and research purposes
-
----
-
-**Good luck with your research! 🚀**
+Edit `config.yaml` to change the offline LLM settings, difficulty thresholds, strategy cost multipliers, evaluation settings, and dataset settings. The default configuration uses mock responses and does not require API credentials.

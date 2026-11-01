@@ -4,7 +4,7 @@ Generates multiple candidate answers and uses a verifier to select the best one.
 """
 
 from strategies.base_strategy import BaseStrategy, StrategyResult
-from typing import List
+from typing import List, Optional
 import random
 import logging
 

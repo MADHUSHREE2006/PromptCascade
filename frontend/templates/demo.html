@@ -413,6 +413,61 @@
   }
 }
 
+/* Sample Questions Chat Style */
+.sample-chat-group {
+  background: white;
+  border: 2px solid #f3f4f6;
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  transition: all 0.3s ease;
+}
+.sample-chat-group:hover {
+  border-color: #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.sample-chat-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.sample-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.35rem 0.75rem;
+  border-radius: 12px;
+  border: 2px solid;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.sample-chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.sample-message {
+  background: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  line-height: 1.5;
+}
+.sample-message:hover {
+  background: white;
+  border-color: #667eea;
+  color: #667eea;
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(102,126,234,0.15);
+}
+.sample-message:active {
+  transform: translateX(2px);
+}
+
 /* History Section */
 .history-section {
   margin-top: 2rem;
@@ -559,6 +614,80 @@
               >
                 🚀 Route Question
               </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sample Questions -->
+      <div style="margin-top: 2rem">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem">
+          <h3 style="font-size: 0.9rem; font-weight: 700; color: #4b5563">
+            💬 Try These Sample Questions
+          </h3>
+          <span style="font-size: 0.75rem; color: #9ca3af; font-weight: 500">
+            Click any question to try it
+          </span>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 0.75rem">
+          <!-- Easy Questions -->
+          <div class="sample-chat-group">
+            <div class="sample-chat-label">
+              <span class="sample-badge" style="background: #10b98115; color: #10b981; border-color: #10b98140">
+                🟢 Easy
+              </span>
+              <span style="font-size: 0.75rem; color: #9ca3af">Direct strategy • Fast</span>
+            </div>
+            <div class="sample-chat-messages">
+              <div class="sample-message" onclick="tryQuestion(this)">What is 2 + 2?</div>
+              <div class="sample-message" onclick="tryQuestion(this)">What is the capital of France?</div>
+              <div class="sample-message" onclick="tryQuestion(this)">Who wrote Romeo and Juliet?</div>
+            </div>
+          </div>
+
+          <!-- Moderate Questions -->
+          <div class="sample-chat-group">
+            <div class="sample-chat-label">
+              <span class="sample-badge" style="background: #3b82f615; color: #3b82f6; border-color: #3b82f640">
+                🔵 Moderate
+              </span>
+              <span style="font-size: 0.75rem; color: #9ca3af">Reasoning strategy • Step-by-step</span>
+            </div>
+            <div class="sample-chat-messages">
+              <div class="sample-message" onclick="tryQuestion(this)">Explain how recursion works in programming.</div>
+              <div class="sample-message" onclick="tryQuestion(this)">Compare quicksort and merge sort algorithms.</div>
+              <div class="sample-message" onclick="tryQuestion(this)">How does gradient descent optimize neural networks?</div>
+            </div>
+          </div>
+
+          <!-- Hard Questions -->
+          <div class="sample-chat-group">
+            <div class="sample-chat-label">
+              <span class="sample-badge" style="background: #f59e0b15; color: #f59e0b; border-color: #f59e0b40">
+                🟡 Hard
+              </span>
+              <span style="font-size: 0.75rem; color: #9ca3af">Verification strategy • Self-checking</span>
+            </div>
+            <div class="sample-chat-messages">
+              <div class="sample-message" onclick="tryQuestion(this)">Prove that the square root of 2 is irrational.</div>
+              <div class="sample-message" onclick="tryQuestion(this)">Derive and analyze Dijkstra's algorithm complexity.</div>
+              <div class="sample-message" onclick="tryQuestion(this)">Prove by induction that sum of first n integers equals n(n+1)/2.</div>
+            </div>
+          </div>
+
+          <!-- Very Hard Questions -->
+          <div class="sample-chat-group">
+            <div class="sample-chat-label">
+              <span class="sample-badge" style="background: #ef444415; color: #ef4444; border-color: #ef444440">
+                🔴 Very Hard
+              </span>
+              <span style="font-size: 0.75rem; color: #9ca3af">Ensemble strategy • Maximum accuracy</span>
+            </div>
+            <div class="sample-chat-messages">
+              <div class="sample-message" onclick="tryQuestion(this)">Prove the halting problem is undecidable using diagonalization.</div>
+              <div class="sample-message" onclick="tryQuestion(this)">Derive backpropagation from first principles for deep networks.</div>
+              <div class="sample-message" onclick="tryQuestion(this)">Construct a formal proof of Gödel's incompleteness theorem.</div>
             </div>
           </div>
         </div>
@@ -870,6 +999,16 @@
   function clearHistory() {
     history = [];
     renderHistory();
+  }
+
+  // Try sample question
+  function tryQuestion(el) {
+    const question = el.textContent.trim();
+    qInput.value = question;
+    qInput.dispatchEvent(new Event("input"));
+    // Scroll to top to see the input
+    qInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    qInput.focus();
   }
 </script>
 {% endblock %}

@@ -1,565 +1,875 @@
 ﻿{% extends "base.html" %}
-{% block title %}Live Demo ΓÇö PromptCascade{% endblock %}
+{% block title %}Live Demo — PromptCascade{% endblock %}
 
 {% block head %}
 <style>
-/* ΓöÇΓöÇ Layout ΓöÇΓöÇ */
+/* Modern Professional Theme */
 .demo-layout {
   display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 1.5rem;
+  grid-template-columns: 1fr 420px;
+  gap: 2rem;
   align-items: start;
+  max-width: 1400px;
+  margin: 0 auto;
 }
-@media(max-width:860px){ .demo-layout{ grid-template-columns:1fr } }
+@media(max-width:960px){ .demo-layout{ grid-template-columns:1fr; } }
 
-/* ΓöÇΓöÇ Input area ΓöÇΓöÇ */
+/* Header Section */
+.demo-hero {
+  text-align: center;
+  padding: 3rem 1rem 2rem;
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+  border-radius: 20px;
+  margin-bottom: 2.5rem;
+}
+.demo-hero h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+}
+.demo-hero p {
+  font-size: 1.15rem;
+  color: #6b7280;
+  max-width: 700px;
+  margin: 0 auto 1.5rem;
+  line-height: 1.7;
+}
+
+/* Info Cards */
+.info-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+@media(max-width:960px){ .info-cards{ grid-template-columns: repeat(2, 1fr); } }
+@media(max-width:600px){ .info-cards{ grid-template-columns: 1fr; } }
+
+.info-card {
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+.info-card:hover {
+  border-color: #667eea;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(102,126,234,0.15);
+}
+.info-card-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+.info-card-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+.info-card-desc {
+  font-size: 0.8rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+.info-card-badge {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  background: #f3f4f6;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+/* Input Box */
 .query-box {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 20px;
   overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+.query-box:focus-within {
+  border-color: #667eea;
+  box-shadow: 0 8px 24px rgba(102,126,234,0.2);
 }
 .query-box-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(90deg, #f9fafb 0%, #ffffff 100%);
+  border-bottom: 2px solid #f3f4f6;
 }
-.query-box-header h2 { font-size: .9rem; font-weight: 700; }
+.query-box-header h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 .query-area {
-  padding: 1.25rem;
+  padding: 1.5rem;
 }
 .query-textarea {
   width: 100%;
-  background: var(--surface2);
-  color: var(--text);
-  border: 1px solid var(--border2);
-  border-radius: 10px;
-  padding: .85rem 1rem;
-  font-family: var(--font); font-size: .9rem;
-  line-height: 1.6;
-  resize: none; outline: none;
-  transition: var(--transition);
-  min-height: 110px;
+  background: #f9fafb;
+  color: #1f2937;
+  border: 2px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  font-family: var(--font);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  resize: none;
+  outline: none;
+  transition: all 0.3s ease;
+  min-height: 140px;
 }
-.query-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-
-/* ΓöÇΓöÇ Sample groups ΓöÇΓöÇ */
-.sample-group { }
-.sample-group-label {
-  font-size: .72rem; font-weight: 700; color: var(--gc, var(--accent));
-  margin-bottom: .35rem; display: flex; align-items: center; gap: .4rem;
+.query-textarea:focus {
+  border-color: #667eea;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(102,126,234,0.1);
 }
-.sample-group-label span { color: var(--text-faint); font-weight: 500; }
-
-/* ΓöÇΓöÇ Sample pills ΓöÇΓöÇ */
-.samples { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1rem; }
-.sample-pill {
-  font-size: .72rem; padding: .3rem .75rem;
-  background: var(--surface2); color: var(--text-muted);
-  border: 1px solid var(--border2); border-radius: 20px;
-  cursor: pointer; transition: var(--transition);
-  max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+.query-textarea::placeholder {
+  color: #9ca3af;
 }
-.sample-pill:hover { border-color: var(--accent); color: var(--accent); background: rgba(79,142,247,.08); }
 
-/* ΓöÇΓöÇ Result card ΓöÇΓöÇ */
+/* Buttons */
+.btn-modern {
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.btn-primary-modern {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+}
+.btn-primary-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102,126,234,0.5);
+}
+.btn-primary-modern:active {
+  transform: translateY(0);
+}
+.btn-secondary-modern {
+  background: white;
+  color: #6b7280;
+  border: 2px solid #e5e7eb;
+}
+.btn-secondary-modern:hover {
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+/* Result Panel */
 .result-panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 20px;
   overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 2rem;
 }
 .result-panel-header {
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--border);
-  font-size: .8rem; font-weight: 700; color: var(--text-muted);
-  letter-spacing: .05em; text-transform: uppercase;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(90deg, #f9fafb 0%, #ffffff 100%);
+  border-bottom: 2px solid #f3f4f6;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #6b7280;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-/* ΓöÇΓöÇ Strategy badge ΓöÇΓöÇ */
+/* Strategy Badge */
 .strategy-badge {
-  display: flex; align-items: center; gap: .75rem;
-  padding: 1.25rem;
-  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 2px solid #f3f4f6;
 }
 .strategy-dot {
-  width: 48px; height: 48px; border-radius: 12px;
-  display: grid; place-items: center;
-  font-size: 1.4rem; flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  font-size: 2rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
-.strategy-badge-info h3 { font-size: 1rem; font-weight: 700; line-height: 1.2; }
-.strategy-badge-info p  { font-size: .75rem; color: var(--text-muted); margin-top: .15rem; }
+.strategy-badge-info h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+}
+.strategy-badge-info p {
+  font-size: 0.85rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
 
-/* ΓöÇΓöÇ Diff meter ΓöÇΓöÇ */
-.diff-meter { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); }
-.diff-meter-label { display: flex; justify-content: space-between; margin-bottom: .4rem; }
-.diff-meter-label span { font-size: .72rem; font-weight: 600; color: var(--text-muted); }
-.diff-meter-label strong { font-size: .85rem; font-family: var(--mono); }
+/* Stats Row */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border-bottom: 2px solid #f3f4f6;
+}
+.stat-cell {
+  padding: 1.25rem;
+  text-align: center;
+  border-right: 2px solid #f3f4f6;
+}
+.stat-cell:last-child {
+  border-right: none;
+}
+.stat-cell-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+}
+.stat-cell-lbl {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin-top: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Difficulty Meter */
+.diff-meter {
+  padding: 1.5rem;
+  border-bottom: 2px solid #f3f4f6;
+}
+.diff-meter-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+.diff-meter-label span {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+.diff-meter-label strong {
+  font-size: 1rem;
+  font-family: var(--mono);
+}
 .diff-track {
-  position: relative; height: 8px;
-  background: var(--border); border-radius: 4px; overflow: hidden;
+  position: relative;
+  height: 12px;
+  background: #f3f4f6;
+  border-radius: 6px;
+  overflow: hidden;
 }
 .diff-fill {
-  height: 100%; border-radius: 4px;
-  background: linear-gradient(90deg, var(--green) 0%, var(--amber) 55%, var(--red) 100%);
-  transition: width .5s cubic-bezier(.4,0,.2,1);
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #10b981 0%, #f59e0b 60%, #ef4444 100%);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .diff-marker {
-  position: absolute; top: -4px;
-  width: 16px; height: 16px; border-radius: 50%;
-  border: 2px solid var(--bg);
+  position: absolute;
+  top: -2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
   transform: translateX(-50%);
-  transition: left .5s cubic-bezier(.4,0,.2,1);
+  transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   background: white;
 }
 .diff-zones {
-  display: flex; justify-content: space-between;
-  margin-top: .35rem;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
 }
-.diff-zones span { font-size: .62rem; color: var(--text-faint); }
-
-/* ΓöÇΓöÇ Feature bars ΓöÇΓöÇ */
-.features-section { padding: 1rem 1.25rem; }
-.feature-row { display: flex; align-items: center; gap: .75rem; margin-bottom: .5rem; }
-.feature-name { font-size: .72rem; color: var(--text-muted); width: 145px; flex-shrink: 0; }
-.feature-bar-wrap { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
-.feature-bar-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width .5s ease; }
-.feature-val { font-size: .7rem; font-family: var(--mono); color: var(--text-muted); width: 38px; text-align: right; }
-
-/* ΓöÇΓöÇ Reasoning box ΓöÇΓöÇ */
-.reasoning-box {
-  margin: 0 1.25rem 1.25rem;
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 10px; padding: .75rem 1rem;
-  font-size: .78rem; color: var(--text-muted); line-height: 1.5;
+.diff-zones span {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  font-weight: 500;
 }
 
-/* ΓöÇΓöÇ Stats row ΓöÇΓöÇ */
-.stats-row {
-  display: grid; grid-template-columns: repeat(3,1fr);
-  gap: 0; border-top: 1px solid var(--border);
-}
-.stat-cell {
-  padding: .85rem; text-align: center;
-  border-right: 1px solid var(--border);
-}
-.stat-cell:last-child { border-right: none; }
-.stat-cell-val { font-size: 1.1rem; font-weight: 700; font-family: var(--mono); }
-.stat-cell-lbl { font-size: .65rem; color: var(--text-muted); margin-top: .15rem; }
-
-/* ΓöÇΓöÇ Empty / Loading states ΓöÇΓöÇ */
-.empty-state {
-  padding: 2.5rem 1.25rem; text-align: center;
-  color: var(--text-faint); font-size: .85rem;
-}
-.empty-state .icon { font-size: 2.5rem; margin-bottom: .75rem; opacity: .5; }
-
-.spinner {
-  width: 24px; height: 24px;
-  border: 2px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-  margin: 0 auto .75rem;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ΓöÇΓöÇ Threshold legend ΓöÇΓöÇ */
+/* Threshold Legend */
 .threshold-legend {
-  display: flex; gap: .5rem; flex-wrap: wrap;
-  padding: 0 1.25rem 1.25rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0 1.5rem 1.5rem;
 }
 .th-item {
-  display: flex; align-items: center; gap: .35rem;
-  font-size: .68rem; color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
 }
-.th-dot { width: 8px; height: 8px; border-radius: 50%; }
+.th-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
 
-/* ΓöÇΓöÇ History ΓöÇΓöÇ */
-.history-section { margin-top: 1.5rem; }
-.history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .75rem; }
-.history-header h3 { font-size: .8rem; font-weight: 700; color: var(--text-muted); letter-spacing: .05em; text-transform: uppercase; }
-.history-list { display: flex; flex-direction: column; gap: .5rem; }
-.history-item {
-  display: flex; align-items: center; gap: .75rem;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 10px; padding: .65rem .9rem;
-  cursor: pointer; transition: var(--transition);
+/* Features Section */
+.features-section {
+  padding: 1.5rem;
 }
-.history-item:hover { border-color: var(--border2); background: var(--surface2); }
-.history-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.history-query { flex: 1; font-size: .8rem; color: var(--text-muted); }
-.history-strategy { font-size: .7rem; font-family: var(--mono); font-weight: 600; }
-.history-diff { font-size: .7rem; font-family: var(--mono); color: var(--text-faint); }
+.feature-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+.feature-name {
+  font-size: 0.8rem;
+  color: #6b7280;
+  width: 150px;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+.feature-bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: #f3f4f6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.feature-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: #667eea;
+  transition: width 0.6s ease;
+}
+.feature-val {
+  font-size: 0.75rem;
+  font-family: var(--mono);
+  color: #6b7280;
+  width: 45px;
+  text-align: right;
+  font-weight: 600;
+}
+
+/* Reasoning Box */
+.reasoning-box {
+  margin: 0 1.5rem 1.5rem;
+  background: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  font-size: 0.85rem;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+/* Empty/Loading States */
+.empty-state {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+.empty-state .icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.4;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* History Section */
+.history-section {
+  margin-top: 2rem;
+}
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.history-header h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #4b5563;
+  letter-spacing: 0.02em;
+}
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.history-item:hover {
+  border-color: #667eea;
+  background: #f9fafb;
+  transform: translateX(4px);
+}
+.history-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.history-query {
+  flex: 1;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+.history-strategy {
+  font-size: 0.75rem;
+  font-family: var(--mono);
+  font-weight: 600;
+}
+.history-diff {
+  font-size: 0.75rem;
+  font-family: var(--mono);
+  color: #9ca3af;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #6b7280;
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.hidden {
+  display: none !important;
+}
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container">
-
-  <div class="page-header">
-    <div class="eyebrow">ΓÜí Interactive Demo</div>
-    <h1>Test Difficulty-Based Routing</h1>
-    <p class="mb-2">Type any question and watch the system estimate difficulty and select the optimal strategy in real-time.</p>
-    <div class="flex gap-2" style="align-items:center; padding:.75rem 1rem; background:var(--surface2); border-radius:12px; border:1px solid var(--border);">
-      <div style="font-size:1.5rem;">≡ƒÆí</div>
-      <div style="font-size:.85rem; color:var(--text-muted); line-height:1.5;">
-        <strong style="color:var(--text);">How it works:</strong> Easy questions use fast direct prompting (1├ù), moderate questions use chain-of-thought reasoning (2.5├ù), hard questions add verification (4├ù), and very hard questions use ensemble with multiple candidates (6├ù).
-      </div>
-    </div>
+  <!-- Hero Section -->
+  <div class="demo-hero">
+    <h1>🎯 PromptCascade Demo</h1>
+    <p>
+      Experience intelligent difficulty-based routing that automatically selects
+      the optimal AI strategy for each question, balancing cost and accuracy.
+    </p>
   </div>
 
-  <!-- ΓöÇΓöÇ Sample queries ΓöÇΓöÇ -->
-  <div class="mb-2">
-    <div class="text-xs text-muted mb-1" style="font-weight:600;letter-spacing:.06em;text-transform:uppercase">
-      ≡ƒô¥ Try these sample questions ΓÇö one per strategy
+  <!-- Info Cards -->
+  <div class="info-cards">
+    <div class="info-card" style="border-color: #10b98155;">
+      <div class="info-card-icon">🟢</div>
+      <div class="info-card-title">Direct</div>
+      <div class="info-card-desc">Fast answers for simple queries</div>
+      <div class="info-card-badge">Cost: 1×</div>
     </div>
-
-    <!-- Direct -->
-    <div class="sample-group mb-1">
-      <div class="sample-group-label" style="--gc:#10b981">
-        ≡ƒƒó Direct &nbsp;<span>Difficulty &lt; 0.30 ┬╖ Cost 1├ù</span>
-      </div>
-      <div class="samples">
-        <div class="sample-pill" data-hint="0.15" onclick="setSample(this)">What is 2 + 2?</div>
-        <div class="sample-pill" data-hint="0.18" onclick="setSample(this)">What is the capital of France?</div>
-        <div class="sample-pill" data-hint="0.12" onclick="setSample(this)">How many legs does a spider have?</div>
-        <div class="sample-pill" data-hint="0.20" onclick="setSample(this)">Who wrote Romeo and Juliet?</div>
-        <div class="sample-pill" data-hint="0.25" onclick="setSample(this)">What planet is closest to the Sun?</div>
-      </div>
+    <div class="info-card" style="border-color: #3b82f655;">
+      <div class="info-card-icon">🔵</div>
+      <div class="info-card-title">Reasoning</div>
+      <div class="info-card-desc">Step-by-step chain-of-thought</div>
+      <div class="info-card-badge">Cost: 2.5×</div>
     </div>
-
-    <!-- Reasoning -->
-    <div class="sample-group mb-1">
-      <div class="sample-group-label" style="--gc:#3b82f6">
-        ≡ƒö╡ Reasoning &nbsp;<span>Difficulty 0.30ΓÇô0.60 ┬╖ Cost 2.5├ù</span>
-      </div>
-      <div class="samples">
-        <div class="sample-pill" data-hint="0.35" onclick="setSample(this)">Explain how recursion works in programming.</div>
-        <div class="sample-pill" data-hint="0.42" onclick="setSample(this)">Explain step by step how binary search works.</div>
-        <div class="sample-pill" data-hint="0.48" onclick="setSample(this)">Compare quicksort and merge sort algorithms.</div>
-        <div class="sample-pill" data-hint="0.55" onclick="setSample(this)">Describe how gradient descent optimizes neural networks.</div>
-        <div class="sample-pill" data-hint="0.50" onclick="setSample(this)">Analyze why recursion uses a call stack.</div>
-      </div>
+    <div class="info-card" style="border-color: #f59e0b55;">
+      <div class="info-card-icon">🟡</div>
+      <div class="info-card-title">Verification</div>
+      <div class="info-card-desc">Self-checking for accuracy</div>
+      <div class="info-card-badge">Cost: 4×</div>
     </div>
-
-    <!-- Verification -->
-    <div class="sample-group mb-1">
-      <div class="sample-group-label" style="--gc:#f59e0b">
-        ≡ƒƒí Verification &nbsp;<span>Difficulty 0.60ΓÇô0.85 ┬╖ Cost 4├ù</span>
-      </div>
-      <div class="samples">
-        <div class="sample-pill" data-hint="0.65" onclick="setSample(this)">Prove that the square root of 2 is irrational.</div>
-        <div class="sample-pill" data-hint="0.70" onclick="setSample(this)">Prove by induction that the sum of first n integers equals n(n+1)/2.</div>
-        <div class="sample-pill" data-hint="0.75" onclick="setSample(this)">Derive and analyze Dijkstra's algorithm complexity.</div>
-        <div class="sample-pill" data-hint="0.78" onclick="setSample(this)">Prove that (P implies Q) is equivalent to (not P or Q).</div>
-        <div class="sample-pill" data-hint="0.82" onclick="setSample(this)">Derive the quadratic formula from first principles.</div>
-      </div>
-    </div>
-
-    <!-- Ensemble -->
-    <div class="sample-group mb-1">
-      <div class="sample-group-label" style="--gc:#ef4444">
-        ≡ƒö┤ Ensemble &nbsp;<span>Difficulty &gt; 0.85 ┬╖ Cost 6├ù</span>
-      </div>
-      <div class="samples">
-        <div class="sample-pill" data-hint="0.87" onclick="setSample(this)">Prove the halting problem is undecidable using diagonalization.</div>
-        <div class="sample-pill" data-hint="0.90" onclick="setSample(this)">Derive backpropagation algorithm from first principles for deep networks.</div>
-        <div class="sample-pill" data-hint="0.93" onclick="setSample(this)">Design a lock-free concurrent data structure and prove correctness.</div>
-        <div class="sample-pill" data-hint="0.95" onclick="setSample(this)">Construct a formal proof of G├╢del's incompleteness theorem.</div>
-        <div class="sample-pill" data-hint="0.88" onclick="setSample(this)">Implement dynamic programming solution for traveling salesman problem.</div>
-      </div>
+    <div class="info-card" style="border-color: #ef444455;">
+      <div class="info-card-icon">🔴</div>
+      <div class="info-card-title">Ensemble</div>
+      <div class="info-card-desc">Multiple candidates verified</div>
+      <div class="info-card-badge">Cost: 6×</div>
     </div>
   </div>
 
   <div class="demo-layout">
-
-    <!-- ΓöÇΓöÇ LEFT: Input ΓöÇΓöÇ -->
+    <!-- LEFT: Input Area -->
     <div>
       <div class="query-box">
         <div class="query-box-header">
-          <h2>≡ƒÆ¼ Your Question</h2>
+          <h2>💬 Your Question</h2>
           <span class="pill pill-blue" id="charCount">0 chars</span>
         </div>
         <div class="query-area">
-          <textarea class="query-textarea" id="queryInput"
-            placeholder="Type any question... Try: 'What is 2+2?' or 'Prove sqrt(2) is irrational'"
-            rows="4"></textarea>
-          <div class="flex gap-1 mt-2" style="justify-content:space-between; align-items:center;">
-            <span style="font-size:.72rem; color:var(--text-faint);">≡ƒÆí Tip: Click sample questions above or press Ctrl+Enter to route</span>
+          <textarea
+            class="query-textarea"
+            id="queryInput"
+            placeholder="Type any question here... For example: 'What is 2+2?' or 'Prove that the square root of 2 is irrational'"
+            rows="5"
+          ></textarea>
+          <div
+            class="flex gap-1 mt-2"
+            style="justify-content: space-between; align-items: center"
+          >
+            <span style="font-size: 0.8rem; color: #9ca3af">
+              💡 Press Ctrl+Enter to route your question
+            </span>
             <div class="flex gap-1">
-              <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
-              <button class="btn btn-primary" id="routeBtn" onclick="routeQuery()">
-                ≡ƒÄ» Route Question ΓåÆ
+              <button class="btn-modern btn-secondary-modern" onclick="clearAll()">
+                Clear
+              </button>
+              <button
+                class="btn-modern btn-primary-modern"
+                id="routeBtn"
+                onclick="routeQuery()"
+              >
+                🚀 Route Question
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ΓöÇΓöÇ History ΓöÇΓöÇ -->
-      <div class="history-section" id="historySection" style="display:none">
+      <!-- History Section -->
+      <div class="history-section" id="historySection" style="display: none">
         <div class="history-header">
-          <h3>≡ƒô£ Recent Queries</h3>
-          <button class="btn btn-secondary text-xs" onclick="clearHistory()">Clear All</button>
+          <h3>📜 Recent Queries</h3>
+          <button
+            class="btn-modern btn-secondary-modern"
+            style="font-size: 0.8rem; padding: 0.5rem 1rem"
+            onclick="clearHistory()"
+          >
+            Clear All
+          </button>
         </div>
         <div class="history-list" id="historyList"></div>
       </div>
     </div>
 
-    <!-- ΓöÇΓöÇ RIGHT: Result panel ΓöÇΓöÇ -->
+    <!-- RIGHT: Result Panel -->
     <div>
       <div class="result-panel" id="resultPanel">
-
-        <!-- Empty state -->
+        <!-- Empty State -->
         <div id="emptyState" class="empty-state">
-          <div class="icon">≡ƒÄ»</div>
-          <div style="margin-bottom:.5rem;"><strong>Ready to route!</strong></div>
-          <div style="font-size:.8rem;">Type a question or click a sample above<br>to see the routing decision</div>
+          <div class="icon">🎯</div>
+          <div style="margin-bottom: 0.5rem"><strong>Ready to route!</strong></div>
+          <div style="font-size: 0.85rem">
+            Type a question and click "Route Question"<br />to see the AI
+            difficulty analysis
+          </div>
         </div>
 
-        <!-- Loading state -->
+        <!-- Loading State -->
         <div id="loadingState" class="empty-state hidden">
           <div class="spinner"></div>
           <div><strong>Analyzing difficulty...</strong></div>
-          <div style="font-size:.8rem; margin-top:.35rem;">Extracting features and routing</div>
+          <div style="font-size: 0.85rem; margin-top: 0.5rem">
+            Extracting features and selecting strategy
+          </div>
         </div>
 
-        <!-- Result content -->
+        <!-- Result Content -->
         <div id="resultContent" class="hidden">
-          <div class="result-panel-header">≡ƒôè Routing Decision</div>
+          <div class="result-panel-header">📊 Routing Decision</div>
 
-          <!-- Strategy badge -->
+          <!-- Strategy Badge -->
           <div class="strategy-badge" id="strategyBadge">
             <div class="strategy-dot" id="strategyDot"></div>
             <div class="strategy-badge-info">
-              <h3 id="strategyName">ΓÇö</h3>
-              <p id="strategyDesc">ΓÇö</p>
+              <h3 id="strategyName">—</h3>
+              <p id="strategyDesc">—</p>
             </div>
           </div>
 
-          <!-- Stats row -->
+          <!-- Stats Row -->
           <div class="stats-row">
             <div class="stat-cell">
-              <div class="stat-cell-val" id="statDiff">ΓÇö</div>
+              <div class="stat-cell-val" id="statDiff">—</div>
               <div class="stat-cell-lbl">Difficulty</div>
             </div>
             <div class="stat-cell">
-              <div class="stat-cell-val" id="statConf">ΓÇö</div>
+              <div class="stat-cell-val" id="statConf">—</div>
               <div class="stat-cell-lbl">Confidence</div>
             </div>
             <div class="stat-cell">
-              <div class="stat-cell-val" id="statCost">ΓÇö</div>
+              <div class="stat-cell-val" id="statCost">—</div>
               <div class="stat-cell-lbl">Cost</div>
             </div>
           </div>
 
-          <!-- Difficulty meter -->
+          <!-- Difficulty Meter -->
           <div class="diff-meter">
             <div class="diff-meter-label">
               <span>Difficulty Score</span>
-              <strong id="diffLabel">ΓÇö</strong>
+              <strong id="diffLabel">—</strong>
             </div>
             <div class="diff-track">
-              <div class="diff-fill" id="diffFill" style="width:0%"></div>
-              <div class="diff-marker" id="diffMarker" style="left:0%"></div>
+              <div class="diff-fill" id="diffFill" style="width: 0%"></div>
+              <div class="diff-marker" id="diffMarker" style="left: 0%"></div>
             </div>
             <div class="diff-zones">
-              <span>Easy</span><span>Moderate</span><span>Hard</span><span>V. Hard</span>
+              <span>Easy</span><span>Moderate</span><span>Hard</span
+              ><span>Very Hard</span>
             </div>
           </div>
 
-          <!-- Threshold legend -->
+          <!-- Threshold Legend -->
           <div class="threshold-legend">
-            <div class="th-item"><div class="th-dot" style="background:#10b981"></div>Direct &lt;0.30</div>
-            <div class="th-item"><div class="th-dot" style="background:#3b82f6"></div>Reasoning 0.30ΓÇô0.60</div>
-            <div class="th-item"><div class="th-dot" style="background:#f59e0b"></div>Verify 0.60ΓÇô0.85</div>
-            <div class="th-item"><div class="th-dot" style="background:#ef4444"></div>Ensemble &gt;0.85</div>
+            <div class="th-item">
+              <div class="th-dot" style="background: #10b981"></div>
+              Direct &lt;0.30
+            </div>
+            <div class="th-item">
+              <div class="th-dot" style="background: #3b82f6"></div>
+              Reasoning 0.30–0.60
+            </div>
+            <div class="th-item">
+              <div class="th-dot" style="background: #f59e0b"></div>
+              Verify 0.60–0.85
+            </div>
+            <div class="th-item">
+              <div class="th-dot" style="background: #ef4444"></div>
+              Ensemble &gt;0.85
+            </div>
           </div>
 
-          <!-- Feature bars -->
+          <!-- Feature Bars -->
           <div class="features-section">
-            <div class="card-title">≡ƒôê Feature Breakdown</div>
+            <div class="card-title">📈 Feature Breakdown</div>
             <div id="featureBars"></div>
           </div>
 
           <!-- Reasoning -->
-          <div class="card-title" style="padding:0 1.25rem .35rem">≡ƒºá Routing Explanation</div>
-          <div class="reasoning-box" id="reasoningBox">ΓÇö</div>
+          <div class="card-title" style="padding: 0 1.5rem 0.5rem">
+            🧠 Routing Explanation
+          </div>
+          <div class="reasoning-box" id="reasoningBox">—</div>
         </div>
       </div>
     </div>
   </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
+{% endblock %} {% block scripts %}
 <script>
-const STRATEGY_META = {{ strategy_meta | tojson }};
-const STRATEGY_ICONS = {
-  direct:'≡ƒƒó', reasoning:'≡ƒö╡', verification:'≡ƒƒí', ensemble:'≡ƒö┤'
-};
-const STRATEGY_DESCS = {
-  direct:       'Direct prompting ΓÇö fast, low cost',
-  reasoning:    'Chain-of-Thought ΓÇö step-by-step reasoning',
-  verification: 'Reason + self-verify ΓÇö two LLM calls',
-  ensemble:     '3 candidates + verifier ΓÇö max accuracy',
-};
+  const STRATEGY_META = {{ strategy_meta | tojson }};
+  const STRATEGY_ICONS = {
+    direct: "🟢",
+    reasoning: "🔵",
+    verification: "🟡",
+    ensemble: "🔴",
+  };
+  const STRATEGY_DESCS = {
+    direct: "Direct prompting — fast, low cost",
+    reasoning: "Chain-of-Thought — step-by-step reasoning",
+    verification: "Reason + self-verify — two LLM calls",
+    ensemble: "3 candidates + verifier — max accuracy",
+  };
 
-let history = [];
-let currentHint = null;   // hint_difficulty for the active query
+  let history = [];
 
-const qInput   = document.getElementById('queryInput');
-const routeBtn = document.getElementById('routeBtn');
+  const qInput = document.getElementById("queryInput");
+  const routeBtn = document.getElementById("routeBtn");
 
-// Char counter ΓÇö reset hint when user types freely
-qInput.addEventListener('input', () => {
-  document.getElementById('charCount').textContent = qInput.value.length + ' chars';
-  currentHint = null;   // free-text: use heuristic estimator
-});
+  // Character counter
+  qInput.addEventListener("input", () => {
+    document.getElementById("charCount").textContent =
+      qInput.value.length + " chars";
+  });
 
-// Enter to route
-qInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) routeQuery();
-});
+  // Ctrl+Enter to route
+  qInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      routeQuery();
+    }
+  });
 
-function setSample(el) {
-  qInput.value = el.textContent.trim();
-  currentHint  = el.dataset.hint ? parseFloat(el.dataset.hint) : null;
-  qInput.dispatchEvent(new Event('input'));
-  routeQuery();
-}
-
-function clearAll() {
-  qInput.value = '';
-  currentHint  = null;
-  qInput.dispatchEvent(new Event('input'));
-  showEmpty();
-}
-
-function showEmpty() {
-  document.getElementById('emptyState').classList.remove('hidden');
-  document.getElementById('loadingState').classList.add('hidden');
-  document.getElementById('resultContent').classList.add('hidden');
-}
-
-async function routeQuery() {
-  const query = qInput.value.trim();
-  if (!query) { qInput.focus(); return; }
-
-  // Show loading
-  document.getElementById('emptyState').classList.add('hidden');
-  document.getElementById('loadingState').classList.remove('hidden');
-  document.getElementById('resultContent').classList.add('hidden');
-  routeBtn.disabled = true;
-
-  try {
-    const body = { query };
-    if (currentHint !== null) body.hint_difficulty = currentHint;
-
-    const res = await fetch('/api/route', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-    displayResult(data, query);
-    addHistory(query, data);
-  } catch (err) {
-    document.getElementById('emptyState').classList.remove('hidden');
-    document.getElementById('loadingState').classList.add('hidden');
-    alert('Error: ' + err.message);
-  } finally {
-    routeBtn.disabled = false;
+  function clearAll() {
+    qInput.value = "";
+    qInput.dispatchEvent(new Event("input"));
+    showEmpty();
   }
-}
 
-function displayResult(d, query) {
-  document.getElementById('loadingState').classList.add('hidden');
-  document.getElementById('resultContent').classList.remove('hidden');
-  document.getElementById('emptyState').classList.add('hidden');
+  function showEmpty() {
+    document.getElementById("emptyState").classList.remove("hidden");
+    document.getElementById("loadingState").classList.add("hidden");
+    document.getElementById("resultContent").classList.add("hidden");
+  }
 
-  const meta = STRATEGY_META[d.strategy];
-  const color = meta.color;
+  async function routeQuery() {
+    const query = qInput.value.trim();
+    if (!query) {
+      qInput.focus();
+      return;
+    }
 
-  // Strategy badge
-  document.getElementById('strategyDot').textContent = STRATEGY_ICONS[d.strategy];
-  document.getElementById('strategyDot').style.background = color + '22';
-  document.getElementById('strategyName').textContent = meta.label + ' Strategy';
-  document.getElementById('strategyName').style.color = color;
-  document.getElementById('strategyDesc').textContent = STRATEGY_DESCS[d.strategy];
+    // Show loading
+    document.getElementById("emptyState").classList.add("hidden");
+    document.getElementById("loadingState").classList.remove("hidden");
+    document.getElementById("resultContent").classList.add("hidden");
+    routeBtn.disabled = true;
 
-  // Stats
-  document.getElementById('statDiff').textContent = d.difficulty.toFixed(3);
-  document.getElementById('statDiff').style.color = color;
-  document.getElementById('statConf').textContent = (d.confidence * 100).toFixed(0) + '%';
-  document.getElementById('statCost').textContent = meta.cost;
+    try {
+      const res = await fetch("/api/route", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      displayResult(data, query);
+      addHistory(query, data);
+    } catch (err) {
+      document.getElementById("emptyState").classList.remove("hidden");
+      document.getElementById("loadingState").classList.add("hidden");
+      alert("Error: " + err.message);
+    } finally {
+      routeBtn.disabled = false;
+    }
+  }
 
-  // Category pill  
-  const catColors = { easy:'pill-green', moderate:'pill-blue', hard:'pill-amber', very_hard:'pill-red' };
-  document.getElementById('strategyDesc').innerHTML =
-    `<span class="pill ${catColors[d.category] || 'pill-blue'}">${d.category.replace('_', ' ')}</span>
+  function displayResult(d, query) {
+    document.getElementById("loadingState").classList.add("hidden");
+    document.getElementById("resultContent").classList.remove("hidden");
+    document.getElementById("emptyState").classList.add("hidden");
+
+    const meta = STRATEGY_META[d.strategy];
+    const color = meta.color;
+
+    // Strategy badge
+    document.getElementById("strategyDot").textContent =
+      STRATEGY_ICONS[d.strategy];
+    document.getElementById("strategyDot").style.background = color + "22";
+    document.getElementById("strategyName").textContent = meta.label + " Strategy";
+    document.getElementById("strategyName").style.color = color;
+    document.getElementById("strategyDesc").textContent =
+      STRATEGY_DESCS[d.strategy];
+
+    // Stats
+    document.getElementById("statDiff").textContent = d.difficulty.toFixed(3);
+    document.getElementById("statDiff").style.color = color;
+    document.getElementById("statConf").textContent =
+      (d.confidence * 100).toFixed(0) + "%";
+    document.getElementById("statCost").textContent = meta.cost;
+
+    // Category pill
+    const catColors = {
+      easy: "pill-green",
+      moderate: "pill-blue",
+      hard: "pill-amber",
+      very_hard: "pill-red",
+    };
+    document.getElementById("strategyDesc").innerHTML =
+      `<span class="pill ${catColors[d.category] || "pill-blue"}">${d.category.replace(
+        "_",
+        " "
+      )}</span>
      &nbsp;${STRATEGY_DESCS[d.strategy]}`;
 
-  // Difficulty meter
-  const pct = (d.difficulty * 100).toFixed(1);
-  document.getElementById('diffFill').style.width = pct + '%';
-  document.getElementById('diffMarker').style.left = pct + '%';
-  document.getElementById('diffLabel').textContent = d.difficulty.toFixed(3);
+    // Difficulty meter
+    const pct = (d.difficulty * 100).toFixed(1);
+    document.getElementById("diffFill").style.width = pct + "%";
+    document.getElementById("diffMarker").style.left = pct + "%";
+    document.getElementById("diffLabel").textContent = d.difficulty.toFixed(3);
 
-  // Feature bars
-  const featureHTML = Object.entries(d.features).map(([name, val]) => `
+    // Feature bars
+    const featureHTML = Object.entries(d.features)
+      .map(
+        ([name, val]) => `
     <div class="feature-row">
       <div class="feature-name">${name}</div>
       <div class="feature-bar-wrap">
-        <div class="feature-bar-fill" style="width:${(val*100).toFixed(1)}%; background:${color}"></div>
+        <div class="feature-bar-fill" style="width:${(val * 100).toFixed(
+          1
+        )}%; background:${color}"></div>
       </div>
       <div class="feature-val">${val.toFixed(3)}</div>
-    </div>`).join('');
-  document.getElementById('featureBars').innerHTML = featureHTML;
+    </div>`
+      )
+      .join("");
+    document.getElementById("featureBars").innerHTML = featureHTML;
 
-  // Reasoning
-  document.getElementById('reasoningBox').textContent = d.reasoning;
+    // Reasoning
+    document.getElementById("reasoningBox").textContent = d.reasoning;
 
-  // Animate border
-  document.getElementById('resultPanel').style.borderColor = color + '55';
-}
+    // Animate border
+    document.getElementById("resultPanel").style.borderColor = color + "55";
+  }
 
-function addHistory(query, data) {
-  history.unshift({ query, data });
-  if (history.length > 8) history.pop();
-  renderHistory();
-}
+  function addHistory(query, data) {
+    history.unshift({ query, data });
+    if (history.length > 8) history.pop();
+    renderHistory();
+  }
 
-function renderHistory() {
-  const section = document.getElementById('historySection');
-  const list    = document.getElementById('historyList');
-  if (!history.length) { section.style.display = 'none'; return; }
-  section.style.display = 'block';
+  function renderHistory() {
+    const section = document.getElementById("historySection");
+    const list = document.getElementById("historyList");
+    if (!history.length) {
+      section.style.display = "none";
+      return;
+    }
+    section.style.display = "block";
 
-  list.innerHTML = history.map((h, i) => {
-    const meta  = STRATEGY_META[h.data.strategy];
-    const short = h.query.length > 55 ? h.query.slice(0,55)+'ΓÇª' : h.query;
-    return `<div class="history-item" onclick="restoreHistory(${i})">
+    list.innerHTML = history
+      .map((h, i) => {
+        const meta = STRATEGY_META[h.data.strategy];
+        const short =
+          h.query.length > 60 ? h.query.slice(0, 60) + "…" : h.query;
+        return `<div class="history-item" onclick="restoreHistory(${i})">
       <div class="history-dot" style="background:${meta.color}"></div>
       <div class="history-query">${short}</div>
       <div class="history-strategy" style="color:${meta.color}">${meta.label}</div>
       <div class="history-diff">${h.data.difficulty.toFixed(2)}</div>
     </div>`;
-  }).join('');
-}
+      })
+      .join("");
+  }
 
-function restoreHistory(i) {
-  const h = history[i];
-  qInput.value = h.query;
-  qInput.dispatchEvent(new Event('input'));
-  displayResult(h.data, h.query);
-}
+  function restoreHistory(i) {
+    const h = history[i];
+    qInput.value = h.query;
+    qInput.dispatchEvent(new Event("input"));
+    displayResult(h.data, h.query);
+  }
 
-function clearHistory() {
-  history = [];
-  renderHistory();
-}
+  function clearHistory() {
+    history = [];
+    renderHistory();
+  }
 </script>
 {% endblock %}

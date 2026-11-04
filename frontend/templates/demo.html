@@ -1,205 +1,96 @@
-{% extends "base.html" %}
-{% block title %}Live Demo — PromptCascade{% endblock %}
+﻿{% extends "base.html" %}
+{% block title %}Live Demo ΓÇö PromptCascade{% endblock %}
 
 {% block head %}
 <style>
-/* ── Professional Business Theme ── */
-:root {
-  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  --gradient-warning: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --shadow-elevated: 0 10px 40px rgba(0,0,0,0.1);
-  --shadow-soft: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-/* ── Layout ── */
+/* ΓöÇΓöÇ Layout ΓöÇΓöÇ */
 .demo-layout {
   display: grid;
-  grid-template-columns: 1fr 420px;
-  gap: 2rem;
+  grid-template-columns: 1fr 380px;
+  gap: 1.5rem;
   align-items: start;
 }
 @media(max-width:860px){ .demo-layout{ grid-template-columns:1fr } }
 
-/* ── Input area ── */
+/* ΓöÇΓöÇ Input area ΓöÇΓöÇ */
 .query-box {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  border: 2px solid transparent;
-  background-clip: padding-box;
-  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: var(--shadow-soft);
-  position: relative;
-}
-.query-box::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 16px;
-  padding: 2px;
-  background: var(--gradient-primary);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0.6;
 }
 .query-box-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 2px solid rgba(102,126,234,0.1);
-  background: linear-gradient(90deg, rgba(102,126,234,0.05) 0%, transparent 100%);
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
 }
-.query-box-header h2 { 
-  font-size: 1rem; 
-  font-weight: 700; 
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+.query-box-header h2 { font-size: .9rem; font-weight: 700; }
 .query-area {
-  padding: 1.5rem;
+  padding: 1.25rem;
 }
 .query-textarea {
   width: 100%;
-  background: #ffffff;
+  background: var(--surface2);
   color: var(--text);
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 1rem 1.25rem;
-  font-family: var(--font); font-size: .95rem;
-  line-height: 1.7;
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: .85rem 1rem;
+  font-family: var(--font); font-size: .9rem;
+  line-height: 1.6;
   resize: none; outline: none;
-  transition: all 0.3s ease;
-  min-height: 120px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  transition: var(--transition);
+  min-height: 110px;
 }
-.query-textarea:focus { 
-  border-color: #667eea; 
-  box-shadow: 0 0 0 4px rgba(102,126,234,0.1), 0 4px 12px rgba(102,126,234,0.15);
-  transform: translateY(-1px);
-}
+.query-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
 
-/* ── Sample groups ── */
-.sample-group { 
-  margin-bottom: 1.25rem;
-  padding: 1rem;
-  background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,250,0.9) 100%);
-  border-radius: 12px;
-  border: 1px solid rgba(0,0,0,0.06);
-}
+/* ΓöÇΓöÇ Sample groups ΓöÇΓöÇ */
+.sample-group { }
 .sample-group-label {
-  font-size: .8rem; font-weight: 700; 
-  color: var(--gc, var(--accent));
-  margin-bottom: .6rem; 
-  display: flex; align-items: center; gap: .5rem;
-  letter-spacing: 0.02em;
+  font-size: .72rem; font-weight: 700; color: var(--gc, var(--accent));
+  margin-bottom: .35rem; display: flex; align-items: center; gap: .4rem;
 }
-.sample-group-label span { 
-  color: var(--text-faint); 
-  font-weight: 500;
-  font-size: .75rem;
-}
+.sample-group-label span { color: var(--text-faint); font-weight: 500; }
 
-/* ── Sample pills ── */
-.samples { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 0; }
+/* ΓöÇΓöÇ Sample pills ΓöÇΓöÇ */
+.samples { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1rem; }
 .sample-pill {
-  font-size: .75rem; padding: .5rem 1rem;
-  background: #ffffff; color: var(--text);
-  border: 2px solid rgba(0,0,0,0.08); 
-  border-radius: 24px;
-  cursor: pointer; 
-  transition: all 0.25s ease;
-  max-width: 280px; 
-  overflow: hidden; 
-  text-overflow: ellipsis; 
-  white-space: nowrap;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  font-weight: 500;
+  font-size: .72rem; padding: .3rem .75rem;
+  background: var(--surface2); color: var(--text-muted);
+  border: 1px solid var(--border2); border-radius: 20px;
+  cursor: pointer; transition: var(--transition);
+  max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.sample-pill:hover { 
-  border-color: var(--gc, #667eea); 
-  color: var(--gc, #667eea); 
-  background: rgba(102,126,234,0.05);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102,126,234,0.15);
-}
+.sample-pill:hover { border-color: var(--accent); color: var(--accent); background: rgba(79,142,247,.08); }
 
-/* ── Result card ── */
+/* ΓöÇΓöÇ Result card ΓöÇΓöÇ */
 .result-panel {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  border: 2px solid transparent;
-  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: var(--shadow-elevated);
-  position: relative;
-  transition: all 0.3s ease;
-}
-.result-panel::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 16px;
-  padding: 2px;
-  background: var(--gradient-primary);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0.4;
 }
 .result-panel-header {
-  padding: 1.25rem 1.5rem;
-  border-bottom: 2px solid rgba(102,126,234,0.1);
-  font-size: .85rem; 
-  font-weight: 700; 
-  background: linear-gradient(90deg, rgba(102,126,234,0.05) 0%, transparent 100%);
-  letter-spacing: .08em; 
-  text-transform: uppercase;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  font-size: .8rem; font-weight: 700; color: var(--text-muted);
+  letter-spacing: .05em; text-transform: uppercase;
 }
 
-/* ── Strategy badge ── */
+/* ΓöÇΓöÇ Strategy badge ΓöÇΓöÇ */
 .strategy-badge {
-  display: flex; align-items: center; gap: 1rem;
-  padding: 1.5rem;
-  border-bottom: 2px solid rgba(102,126,234,0.1);
-  background: linear-gradient(90deg, rgba(102,126,234,0.02) 0%, transparent 100%);
+  display: flex; align-items: center; gap: .75rem;
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--border);
 }
 .strategy-dot {
-  width: 56px; height: 56px; border-radius: 14px;
+  width: 48px; height: 48px; border-radius: 12px;
   display: grid; place-items: center;
-  font-size: 1.6rem; flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  position: relative;
+  font-size: 1.4rem; flex-shrink: 0;
 }
-.strategy-dot::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: 16px;
-  background: var(--gradient-primary);
-  opacity: 0.3;
-  z-index: -1;
-}
-.strategy-badge-info h3 { 
-  font-size: 1.15rem; 
-  font-weight: 700; 
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-}
-.strategy-badge-info p  { 
-  font-size: .8rem; 
-  color: var(--text-muted); 
-  margin-top: .25rem;
-  line-height: 1.4;
-}
+.strategy-badge-info h3 { font-size: 1rem; font-weight: 700; line-height: 1.2; }
+.strategy-badge-info p  { font-size: .75rem; color: var(--text-muted); margin-top: .15rem; }
 
-/* ── Diff meter ── */
+/* ΓöÇΓöÇ Diff meter ΓöÇΓöÇ */
 .diff-meter { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); }
 .diff-meter-label { display: flex; justify-content: space-between; margin-bottom: .4rem; }
 .diff-meter-label span { font-size: .72rem; font-weight: 600; color: var(--text-muted); }
@@ -227,7 +118,7 @@
 }
 .diff-zones span { font-size: .62rem; color: var(--text-faint); }
 
-/* ── Feature bars ── */
+/* ΓöÇΓöÇ Feature bars ΓöÇΓöÇ */
 .features-section { padding: 1rem 1.25rem; }
 .feature-row { display: flex; align-items: center; gap: .75rem; margin-bottom: .5rem; }
 .feature-name { font-size: .72rem; color: var(--text-muted); width: 145px; flex-shrink: 0; }
@@ -235,7 +126,7 @@
 .feature-bar-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width .5s ease; }
 .feature-val { font-size: .7rem; font-family: var(--mono); color: var(--text-muted); width: 38px; text-align: right; }
 
-/* ── Reasoning box ── */
+/* ΓöÇΓöÇ Reasoning box ΓöÇΓöÇ */
 .reasoning-box {
   margin: 0 1.25rem 1.25rem;
   background: var(--surface2); border: 1px solid var(--border);
@@ -243,7 +134,7 @@
   font-size: .78rem; color: var(--text-muted); line-height: 1.5;
 }
 
-/* ── Stats row ── */
+/* ΓöÇΓöÇ Stats row ΓöÇΓöÇ */
 .stats-row {
   display: grid; grid-template-columns: repeat(3,1fr);
   gap: 0; border-top: 1px solid var(--border);
@@ -256,7 +147,7 @@
 .stat-cell-val { font-size: 1.1rem; font-weight: 700; font-family: var(--mono); }
 .stat-cell-lbl { font-size: .65rem; color: var(--text-muted); margin-top: .15rem; }
 
-/* ── Empty / Loading states ── */
+/* ΓöÇΓöÇ Empty / Loading states ΓöÇΓöÇ */
 .empty-state {
   padding: 2.5rem 1.25rem; text-align: center;
   color: var(--text-faint); font-size: .85rem;
@@ -273,7 +164,7 @@
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Threshold legend ── */
+/* ΓöÇΓöÇ Threshold legend ΓöÇΓöÇ */
 .threshold-legend {
   display: flex; gap: .5rem; flex-wrap: wrap;
   padding: 0 1.25rem 1.25rem;
@@ -284,7 +175,7 @@
 }
 .th-dot { width: 8px; height: 8px; border-radius: 50%; }
 
-/* ── History ── */
+/* ΓöÇΓöÇ History ΓöÇΓöÇ */
 .history-section { margin-top: 1.5rem; }
 .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .75rem; }
 .history-header h3 { font-size: .8rem; font-weight: 700; color: var(--text-muted); letter-spacing: .05em; text-transform: uppercase; }
@@ -307,87 +198,87 @@
 <div class="container">
 
   <div class="page-header">
-    <div class="eyebrow" style="background:var(--gradient-primary); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-weight:700;">⚡ AI-Powered Interactive Demo</div>
-    <h1 style="background:linear-gradient(135deg, #1f2937 0%, #667eea 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">Intelligent Difficulty-Based Routing</h1>
-    <p class="mb-2" style="font-size:1.05rem; line-height:1.7; color:#4b5563;">Experience real-time AI-powered query analysis that automatically selects the optimal processing strategy for maximum efficiency and accuracy.</p>
-    <div class="flex gap-2" style="align-items:center; padding:1rem 1.25rem; background:linear-gradient(135deg, rgba(102,126,234,0.08) 0%, rgba(118,75,162,0.08) 100%); border-radius:14px; border:2px solid rgba(102,126,234,0.15); box-shadow:var(--shadow-soft);">
-      <div style="font-size:2rem;">💡</div>
-      <div style="font-size:.9rem; color:#374151; line-height:1.6;">
-        <strong style="color:#1f2937; font-weight:700;">Smart Routing System:</strong> Simple queries use direct prompting (1×), moderate questions employ chain-of-thought reasoning (2.5×), complex problems add self-verification (4×), and expert-level challenges use ensemble methods (6×) for maximum accuracy.
+    <div class="eyebrow">ΓÜí Interactive Demo</div>
+    <h1>Test Difficulty-Based Routing</h1>
+    <p class="mb-2">Type any question and watch the system estimate difficulty and select the optimal strategy in real-time.</p>
+    <div class="flex gap-2" style="align-items:center; padding:.75rem 1rem; background:var(--surface2); border-radius:12px; border:1px solid var(--border);">
+      <div style="font-size:1.5rem;">≡ƒÆí</div>
+      <div style="font-size:.85rem; color:var(--text-muted); line-height:1.5;">
+        <strong style="color:var(--text);">How it works:</strong> Easy questions use fast direct prompting (1├ù), moderate questions use chain-of-thought reasoning (2.5├ù), hard questions add verification (4├ù), and very hard questions use ensemble with multiple candidates (6├ù).
       </div>
     </div>
   </div>
 
-  <!-- ── Sample queries ── -->
+  <!-- ΓöÇΓöÇ Sample queries ΓöÇΓöÇ -->
   <div class="mb-2">
-    <div style="font-size:.9rem; font-weight:700; margin-bottom:1rem; color:#1f2937; letter-spacing:0.01em;">
-      💼 Professional Sample Questions — Click to Test Each Strategy
+    <div class="text-xs text-muted mb-1" style="font-weight:600;letter-spacing:.06em;text-transform:uppercase">
+      ≡ƒô¥ Try these sample questions ΓÇö one per strategy
     </div>
 
     <!-- Direct -->
-    <div class="sample-group">
-      <div class="sample-group-label" style="--gc:#10b981; color:#10b981;">
-        🟢 Direct Strategy &nbsp;<span>Difficulty &lt; 0.30 · Cost 1× · Fast Answers</span>
+    <div class="sample-group mb-1">
+      <div class="sample-group-label" style="--gc:#10b981">
+        ≡ƒƒó Direct &nbsp;<span>Difficulty &lt; 0.30 ┬╖ Cost 1├ù</span>
       </div>
       <div class="samples">
-        <div class="sample-pill" data-hint="0.15" onclick="setSample(this)" style="--gc:#10b981;">What is 2 + 2?</div>
-        <div class="sample-pill" data-hint="0.18" onclick="setSample(this)" style="--gc:#10b981;">What is the capital of France?</div>
-        <div class="sample-pill" data-hint="0.12" onclick="setSample(this)" style="--gc:#10b981;">How many legs does a spider have?</div>
-        <div class="sample-pill" data-hint="0.20" onclick="setSample(this)" style="--gc:#10b981;">Who wrote Romeo and Juliet?</div>
-        <div class="sample-pill" data-hint="0.25" onclick="setSample(this)" style="--gc:#10b981;">What planet is closest to the Sun?</div>
+        <div class="sample-pill" data-hint="0.15" onclick="setSample(this)">What is 2 + 2?</div>
+        <div class="sample-pill" data-hint="0.18" onclick="setSample(this)">What is the capital of France?</div>
+        <div class="sample-pill" data-hint="0.12" onclick="setSample(this)">How many legs does a spider have?</div>
+        <div class="sample-pill" data-hint="0.20" onclick="setSample(this)">Who wrote Romeo and Juliet?</div>
+        <div class="sample-pill" data-hint="0.25" onclick="setSample(this)">What planet is closest to the Sun?</div>
       </div>
     </div>
 
     <!-- Reasoning -->
-    <div class="sample-group">
-      <div class="sample-group-label" style="--gc:#3b82f6; color:#3b82f6;">
-        🔵 Reasoning Strategy &nbsp;<span>Difficulty 0.30–0.60 · Cost 2.5× · Step-by-Step</span>
+    <div class="sample-group mb-1">
+      <div class="sample-group-label" style="--gc:#3b82f6">
+        ≡ƒö╡ Reasoning &nbsp;<span>Difficulty 0.30ΓÇô0.60 ┬╖ Cost 2.5├ù</span>
       </div>
       <div class="samples">
-        <div class="sample-pill" data-hint="0.35" onclick="setSample(this)" style="--gc:#3b82f6;">Explain how recursion works in programming.</div>
-        <div class="sample-pill" data-hint="0.42" onclick="setSample(this)" style="--gc:#3b82f6;">Explain step by step how binary search works.</div>
-        <div class="sample-pill" data-hint="0.48" onclick="setSample(this)" style="--gc:#3b82f6;">Compare quicksort and merge sort algorithms.</div>
-        <div class="sample-pill" data-hint="0.55" onclick="setSample(this)" style="--gc:#3b82f6;">Describe how gradient descent optimizes neural networks.</div>
-        <div class="sample-pill" data-hint="0.50" onclick="setSample(this)" style="--gc:#3b82f6;">Analyze why recursion uses a call stack.</div>
+        <div class="sample-pill" data-hint="0.35" onclick="setSample(this)">Explain how recursion works in programming.</div>
+        <div class="sample-pill" data-hint="0.42" onclick="setSample(this)">Explain step by step how binary search works.</div>
+        <div class="sample-pill" data-hint="0.48" onclick="setSample(this)">Compare quicksort and merge sort algorithms.</div>
+        <div class="sample-pill" data-hint="0.55" onclick="setSample(this)">Describe how gradient descent optimizes neural networks.</div>
+        <div class="sample-pill" data-hint="0.50" onclick="setSample(this)">Analyze why recursion uses a call stack.</div>
       </div>
     </div>
 
     <!-- Verification -->
-    <div class="sample-group">
-      <div class="sample-group-label" style="--gc:#f59e0b; color:#f59e0b;">
-        🟡 Verification Strategy &nbsp;<span>Difficulty 0.60–0.85 · Cost 4× · Self-Checking</span>
+    <div class="sample-group mb-1">
+      <div class="sample-group-label" style="--gc:#f59e0b">
+        ≡ƒƒí Verification &nbsp;<span>Difficulty 0.60ΓÇô0.85 ┬╖ Cost 4├ù</span>
       </div>
       <div class="samples">
-        <div class="sample-pill" data-hint="0.65" onclick="setSample(this)" style="--gc:#f59e0b;">Prove that the square root of 2 is irrational.</div>
-        <div class="sample-pill" data-hint="0.70" onclick="setSample(this)" style="--gc:#f59e0b;">Prove by induction that the sum of first n integers equals n(n+1)/2.</div>
-        <div class="sample-pill" data-hint="0.75" onclick="setSample(this)" style="--gc:#f59e0b;">Derive and analyze Dijkstra's algorithm complexity.</div>
-        <div class="sample-pill" data-hint="0.78" onclick="setSample(this)" style="--gc:#f59e0b;">Prove that (P implies Q) is equivalent to (not P or Q).</div>
-        <div class="sample-pill" data-hint="0.82" onclick="setSample(this)" style="--gc:#f59e0b;">Derive the quadratic formula from first principles.</div>
+        <div class="sample-pill" data-hint="0.65" onclick="setSample(this)">Prove that the square root of 2 is irrational.</div>
+        <div class="sample-pill" data-hint="0.70" onclick="setSample(this)">Prove by induction that the sum of first n integers equals n(n+1)/2.</div>
+        <div class="sample-pill" data-hint="0.75" onclick="setSample(this)">Derive and analyze Dijkstra's algorithm complexity.</div>
+        <div class="sample-pill" data-hint="0.78" onclick="setSample(this)">Prove that (P implies Q) is equivalent to (not P or Q).</div>
+        <div class="sample-pill" data-hint="0.82" onclick="setSample(this)">Derive the quadratic formula from first principles.</div>
       </div>
     </div>
 
     <!-- Ensemble -->
-    <div class="sample-group">
-      <div class="sample-group-label" style="--gc:#ef4444; color:#ef4444;">
-        🔴 Ensemble Strategy &nbsp;<span>Difficulty &gt; 0.85 · Cost 6× · Maximum Accuracy</span>
+    <div class="sample-group mb-1">
+      <div class="sample-group-label" style="--gc:#ef4444">
+        ≡ƒö┤ Ensemble &nbsp;<span>Difficulty &gt; 0.85 ┬╖ Cost 6├ù</span>
       </div>
       <div class="samples">
-        <div class="sample-pill" data-hint="0.87" onclick="setSample(this)" style="--gc:#ef4444;">Prove the halting problem is undecidable using diagonalization.</div>
-        <div class="sample-pill" data-hint="0.90" onclick="setSample(this)" style="--gc:#ef4444;">Derive backpropagation algorithm from first principles for deep networks.</div>
-        <div class="sample-pill" data-hint="0.93" onclick="setSample(this)" style="--gc:#ef4444;">Design a lock-free concurrent data structure and prove correctness.</div>
-        <div class="sample-pill" data-hint="0.95" onclick="setSample(this)" style="--gc:#ef4444;">Construct a formal proof of Gödel's incompleteness theorem.</div>
-        <div class="sample-pill" data-hint="0.88" onclick="setSample(this)" style="--gc:#ef4444;">Implement dynamic programming solution for traveling salesman problem.</div>
+        <div class="sample-pill" data-hint="0.87" onclick="setSample(this)">Prove the halting problem is undecidable using diagonalization.</div>
+        <div class="sample-pill" data-hint="0.90" onclick="setSample(this)">Derive backpropagation algorithm from first principles for deep networks.</div>
+        <div class="sample-pill" data-hint="0.93" onclick="setSample(this)">Design a lock-free concurrent data structure and prove correctness.</div>
+        <div class="sample-pill" data-hint="0.95" onclick="setSample(this)">Construct a formal proof of G├╢del's incompleteness theorem.</div>
+        <div class="sample-pill" data-hint="0.88" onclick="setSample(this)">Implement dynamic programming solution for traveling salesman problem.</div>
       </div>
     </div>
   </div>
 
   <div class="demo-layout">
 
-    <!-- ── LEFT: Input ── -->
+    <!-- ΓöÇΓöÇ LEFT: Input ΓöÇΓöÇ -->
     <div>
       <div class="query-box">
         <div class="query-box-header">
-          <h2>💬 Your Question</h2>
+          <h2>≡ƒÆ¼ Your Question</h2>
           <span class="pill pill-blue" id="charCount">0 chars</span>
         </div>
         <div class="query-area">
@@ -395,34 +286,34 @@
             placeholder="Type any question... Try: 'What is 2+2?' or 'Prove sqrt(2) is irrational'"
             rows="4"></textarea>
           <div class="flex gap-1 mt-2" style="justify-content:space-between; align-items:center;">
-            <span style="font-size:.75rem; color:#6b7280;">💡 Tip: Click sample questions above or press Ctrl+Enter to route</span>
+            <span style="font-size:.72rem; color:var(--text-faint);">≡ƒÆí Tip: Click sample questions above or press Ctrl+Enter to route</span>
             <div class="flex gap-1">
-              <button class="btn btn-secondary" onclick="clearAll()" style="border:2px solid #e5e7eb; font-weight:600;">Clear</button>
-              <button class="btn btn-primary" id="routeBtn" onclick="routeQuery()" style="background:var(--gradient-primary); border:none; font-weight:700; box-shadow:0 4px 12px rgba(102,126,234,0.3);">
-                🎯 Route Question →
+              <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+              <button class="btn btn-primary" id="routeBtn" onclick="routeQuery()">
+                ≡ƒÄ» Route Question ΓåÆ
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ── History ── -->
+      <!-- ΓöÇΓöÇ History ΓöÇΓöÇ -->
       <div class="history-section" id="historySection" style="display:none">
         <div class="history-header">
-          <h3>📜 Recent Queries</h3>
+          <h3>≡ƒô£ Recent Queries</h3>
           <button class="btn btn-secondary text-xs" onclick="clearHistory()">Clear All</button>
         </div>
         <div class="history-list" id="historyList"></div>
       </div>
     </div>
 
-    <!-- ── RIGHT: Result panel ── -->
+    <!-- ΓöÇΓöÇ RIGHT: Result panel ΓöÇΓöÇ -->
     <div>
       <div class="result-panel" id="resultPanel">
 
         <!-- Empty state -->
         <div id="emptyState" class="empty-state">
-          <div class="icon">🎯</div>
+          <div class="icon">≡ƒÄ»</div>
           <div style="margin-bottom:.5rem;"><strong>Ready to route!</strong></div>
           <div style="font-size:.8rem;">Type a question or click a sample above<br>to see the routing decision</div>
         </div>
@@ -436,29 +327,29 @@
 
         <!-- Result content -->
         <div id="resultContent" class="hidden">
-          <div class="result-panel-header">📊 Routing Decision</div>
+          <div class="result-panel-header">≡ƒôè Routing Decision</div>
 
           <!-- Strategy badge -->
           <div class="strategy-badge" id="strategyBadge">
             <div class="strategy-dot" id="strategyDot"></div>
             <div class="strategy-badge-info">
-              <h3 id="strategyName">—</h3>
-              <p id="strategyDesc">—</p>
+              <h3 id="strategyName">ΓÇö</h3>
+              <p id="strategyDesc">ΓÇö</p>
             </div>
           </div>
 
           <!-- Stats row -->
           <div class="stats-row">
             <div class="stat-cell">
-              <div class="stat-cell-val" id="statDiff">—</div>
+              <div class="stat-cell-val" id="statDiff">ΓÇö</div>
               <div class="stat-cell-lbl">Difficulty</div>
             </div>
             <div class="stat-cell">
-              <div class="stat-cell-val" id="statConf">—</div>
+              <div class="stat-cell-val" id="statConf">ΓÇö</div>
               <div class="stat-cell-lbl">Confidence</div>
             </div>
             <div class="stat-cell">
-              <div class="stat-cell-val" id="statCost">—</div>
+              <div class="stat-cell-val" id="statCost">ΓÇö</div>
               <div class="stat-cell-lbl">Cost</div>
             </div>
           </div>
@@ -467,7 +358,7 @@
           <div class="diff-meter">
             <div class="diff-meter-label">
               <span>Difficulty Score</span>
-              <strong id="diffLabel">—</strong>
+              <strong id="diffLabel">ΓÇö</strong>
             </div>
             <div class="diff-track">
               <div class="diff-fill" id="diffFill" style="width:0%"></div>
@@ -481,20 +372,20 @@
           <!-- Threshold legend -->
           <div class="threshold-legend">
             <div class="th-item"><div class="th-dot" style="background:#10b981"></div>Direct &lt;0.30</div>
-            <div class="th-item"><div class="th-dot" style="background:#3b82f6"></div>Reasoning 0.30–0.60</div>
-            <div class="th-item"><div class="th-dot" style="background:#f59e0b"></div>Verify 0.60–0.85</div>
+            <div class="th-item"><div class="th-dot" style="background:#3b82f6"></div>Reasoning 0.30ΓÇô0.60</div>
+            <div class="th-item"><div class="th-dot" style="background:#f59e0b"></div>Verify 0.60ΓÇô0.85</div>
             <div class="th-item"><div class="th-dot" style="background:#ef4444"></div>Ensemble &gt;0.85</div>
           </div>
 
           <!-- Feature bars -->
           <div class="features-section">
-            <div class="card-title">📈 Feature Breakdown</div>
+            <div class="card-title">≡ƒôê Feature Breakdown</div>
             <div id="featureBars"></div>
           </div>
 
           <!-- Reasoning -->
-          <div class="card-title" style="padding:0 1.25rem .35rem">🧠 Routing Explanation</div>
-          <div class="reasoning-box" id="reasoningBox">—</div>
+          <div class="card-title" style="padding:0 1.25rem .35rem">≡ƒºá Routing Explanation</div>
+          <div class="reasoning-box" id="reasoningBox">ΓÇö</div>
         </div>
       </div>
     </div>
@@ -506,13 +397,13 @@
 <script>
 const STRATEGY_META = {{ strategy_meta | tojson }};
 const STRATEGY_ICONS = {
-  direct:'🟢', reasoning:'🔵', verification:'🟡', ensemble:'🔴'
+  direct:'≡ƒƒó', reasoning:'≡ƒö╡', verification:'≡ƒƒí', ensemble:'≡ƒö┤'
 };
 const STRATEGY_DESCS = {
-  direct:       'Direct prompting — fast, low cost',
-  reasoning:    'Chain-of-Thought — step-by-step reasoning',
-  verification: 'Reason + self-verify — two LLM calls',
-  ensemble:     '3 candidates + verifier — max accuracy',
+  direct:       'Direct prompting ΓÇö fast, low cost',
+  reasoning:    'Chain-of-Thought ΓÇö step-by-step reasoning',
+  verification: 'Reason + self-verify ΓÇö two LLM calls',
+  ensemble:     '3 candidates + verifier ΓÇö max accuracy',
 };
 
 let history = [];
@@ -521,7 +412,7 @@ let currentHint = null;   // hint_difficulty for the active query
 const qInput   = document.getElementById('queryInput');
 const routeBtn = document.getElementById('routeBtn');
 
-// Char counter — reset hint when user types freely
+// Char counter ΓÇö reset hint when user types freely
 qInput.addEventListener('input', () => {
   document.getElementById('charCount').textContent = qInput.value.length + ' chars';
   currentHint = null;   // free-text: use heuristic estimator
@@ -533,23 +424,16 @@ qInput.addEventListener('keydown', e => {
 });
 
 function setSample(el) {
-  const query = el.textContent.trim();
-  const hint = el.dataset.hint ? parseFloat(el.dataset.hint) : null;
-  
-  qInput.value = query;
-  currentHint = hint;
-  
-  // Update char count
-  document.getElementById('charCount').textContent = query.length + ' chars';
-  
-  // Auto-route immediately
+  qInput.value = el.textContent.trim();
+  currentHint  = el.dataset.hint ? parseFloat(el.dataset.hint) : null;
+  qInput.dispatchEvent(new Event('input'));
   routeQuery();
 }
 
 function clearAll() {
   qInput.value = '';
-  currentHint = null;
-  document.getElementById('charCount').textContent = '0 chars';
+  currentHint  = null;
+  qInput.dispatchEvent(new Event('input'));
   showEmpty();
 }
 
@@ -571,12 +455,7 @@ async function routeQuery() {
 
   try {
     const body = { query };
-    if (currentHint !== null) {
-      body.hint_difficulty = currentHint;
-      console.log(`🎯 Routing with hint: ${currentHint} for query: "${query}"`);
-    } else {
-      console.log(`🎯 Routing without hint for query: "${query}"`);
-    }
+    if (currentHint !== null) body.hint_difficulty = currentHint;
 
     const res = await fetch('/api/route', {
       method: 'POST',
@@ -585,8 +464,6 @@ async function routeQuery() {
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    
-    console.log(`✅ Routed to: ${data.strategy} (difficulty: ${data.difficulty})`);
     displayResult(data, query);
     addHistory(query, data);
   } catch (err) {
@@ -663,7 +540,7 @@ function renderHistory() {
 
   list.innerHTML = history.map((h, i) => {
     const meta  = STRATEGY_META[h.data.strategy];
-    const short = h.query.length > 55 ? h.query.slice(0,55)+'…' : h.query;
+    const short = h.query.length > 55 ? h.query.slice(0,55)+'ΓÇª' : h.query;
     return `<div class="history-item" onclick="restoreHistory(${i})">
       <div class="history-dot" style="background:${meta.color}"></div>
       <div class="history-query">${short}</div>

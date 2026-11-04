@@ -198,15 +198,21 @@
 <div class="container">
 
   <div class="page-header">
-    <div class="eyebrow">⚡ Live Demo</div>
-    <h1>Ask Anything — Watch It Route</h1>
-    <p>Type any question and see the difficulty estimator + router decide which strategy to use in real time.</p>
+    <div class="eyebrow">⚡ Interactive Demo</div>
+    <h1>Test Difficulty-Based Routing</h1>
+    <p class="mb-2">Type any question and watch the system estimate difficulty and select the optimal strategy in real-time.</p>
+    <div class="flex gap-2" style="align-items:center; padding:.75rem 1rem; background:var(--surface2); border-radius:12px; border:1px solid var(--border);">
+      <div style="font-size:1.5rem;">💡</div>
+      <div style="font-size:.85rem; color:var(--text-muted); line-height:1.5;">
+        <strong style="color:var(--text);">How it works:</strong> Easy questions use fast direct prompting (1×), moderate questions use chain-of-thought reasoning (2.5×), hard questions add verification (4×), and very hard questions use ensemble with multiple candidates (6×).
+      </div>
+    </div>
   </div>
 
   <!-- ── Sample queries ── -->
   <div class="mb-2">
     <div class="text-xs text-muted mb-1" style="font-weight:600;letter-spacing:.06em;text-transform:uppercase">
-      Sample questions — one per strategy
+      📝 Try these sample questions — one per strategy
     </div>
 
     <!-- Direct -->
@@ -215,10 +221,11 @@
         🟢 Direct &nbsp;<span>Difficulty &lt; 0.30 · Cost 1×</span>
       </div>
       <div class="samples">
-        <div class="sample-pill" data-hint="0.10" onclick="setSample(this)">What is the capital of France?</div>
+        <div class="sample-pill" data-hint="0.15" onclick="setSample(this)">What is 2 + 2?</div>
+        <div class="sample-pill" data-hint="0.18" onclick="setSample(this)">What is the capital of France?</div>
         <div class="sample-pill" data-hint="0.12" onclick="setSample(this)">How many legs does a spider have?</div>
-        <div class="sample-pill" data-hint="0.08" onclick="setSample(this)">What is 15 × 6?</div>
-        <div class="sample-pill" data-hint="0.15" onclick="setSample(this)">Who wrote Romeo and Juliet?</div>
+        <div class="sample-pill" data-hint="0.20" onclick="setSample(this)">Who wrote Romeo and Juliet?</div>
+        <div class="sample-pill" data-hint="0.25" onclick="setSample(this)">What planet is closest to the Sun?</div>
       </div>
     </div>
 
@@ -228,10 +235,11 @@
         🔵 Reasoning &nbsp;<span>Difficulty 0.30–0.60 · Cost 2.5×</span>
       </div>
       <div class="samples">
-        <div class="sample-pill" data-hint="0.42" onclick="setSample(this)">Explain step by step how binary search works with an example.</div>
-        <div class="sample-pill" data-hint="0.45" onclick="setSample(this)">Compare quicksort and merge sort — steps, trade-offs, and use cases.</div>
-        <div class="sample-pill" data-hint="0.38" onclick="setSample(this)">Describe how gradient descent optimizes a neural network loss function.</div>
-        <div class="sample-pill" data-hint="0.50" onclick="setSample(this)">Analyze why recursion uses a call stack and explain tail-call optimization.</div>
+        <div class="sample-pill" data-hint="0.35" onclick="setSample(this)">Explain how recursion works in programming.</div>
+        <div class="sample-pill" data-hint="0.42" onclick="setSample(this)">Explain step by step how binary search works.</div>
+        <div class="sample-pill" data-hint="0.48" onclick="setSample(this)">Compare quicksort and merge sort algorithms.</div>
+        <div class="sample-pill" data-hint="0.55" onclick="setSample(this)">Describe how gradient descent optimizes neural networks.</div>
+        <div class="sample-pill" data-hint="0.50" onclick="setSample(this)">Analyze why recursion uses a call stack.</div>
       </div>
     </div>
 
@@ -241,10 +249,11 @@
         🟡 Verification &nbsp;<span>Difficulty 0.60–0.85 · Cost 4×</span>
       </div>
       <div class="samples">
-        <div class="sample-pill" data-hint="0.72" onclick="setSample(this)">Prove rigorously that √2 is irrational using proof by contradiction.</div>
-        <div class="sample-pill" data-hint="0.68" onclick="setSample(this)">Prove by induction that the sum of first n squares = n(n+1)(2n+1)/6.</div>
-        <div class="sample-pill" data-hint="0.75" onclick="setSample(this)">Derive and analyze Dijkstra's algorithm time complexity with a binary heap.</div>
-        <div class="sample-pill" data-hint="0.80" onclick="setSample(this)">Formally prove that (P → Q) ≡ (¬P ∨ Q) using a complete truth table argument.</div>
+        <div class="sample-pill" data-hint="0.65" onclick="setSample(this)">Prove that the square root of 2 is irrational.</div>
+        <div class="sample-pill" data-hint="0.70" onclick="setSample(this)">Prove by induction that the sum of first n integers equals n(n+1)/2.</div>
+        <div class="sample-pill" data-hint="0.75" onclick="setSample(this)">Derive and analyze Dijkstra's algorithm complexity.</div>
+        <div class="sample-pill" data-hint="0.78" onclick="setSample(this)">Prove that (P implies Q) is equivalent to (not P or Q).</div>
+        <div class="sample-pill" data-hint="0.82" onclick="setSample(this)">Derive the quadratic formula from first principles.</div>
       </div>
     </div>
 
@@ -254,10 +263,11 @@
         🔴 Ensemble &nbsp;<span>Difficulty &gt; 0.85 · Cost 6×</span>
       </div>
       <div class="samples">
-        <div class="sample-pill" data-hint="0.92" onclick="setSample(this)">Prove the halting problem is undecidable using a full diagonalization argument.</div>
-        <div class="sample-pill" data-hint="0.95" onclick="setSample(this)">Derive backpropagation from first principles for an arbitrary deep network and prove convergence.</div>
-        <div class="sample-pill" data-hint="0.88" onclick="setSample(this)">Design a wait-free concurrent hash map with CAS, address the ABA problem, and prove linearizability.</div>
-        <div class="sample-pill" data-hint="0.97" onclick="setSample(this)">Construct a complete formal proof of Gödel's first incompleteness theorem from Peano axioms.</div>
+        <div class="sample-pill" data-hint="0.87" onclick="setSample(this)">Prove the halting problem is undecidable using diagonalization.</div>
+        <div class="sample-pill" data-hint="0.90" onclick="setSample(this)">Derive backpropagation algorithm from first principles for deep networks.</div>
+        <div class="sample-pill" data-hint="0.93" onclick="setSample(this)">Design a lock-free concurrent data structure and prove correctness.</div>
+        <div class="sample-pill" data-hint="0.95" onclick="setSample(this)">Construct a formal proof of Gödel's incompleteness theorem.</div>
+        <div class="sample-pill" data-hint="0.88" onclick="setSample(this)">Implement dynamic programming solution for traveling salesman problem.</div>
       </div>
     </div>
   </div>
@@ -268,18 +278,21 @@
     <div>
       <div class="query-box">
         <div class="query-box-header">
-          <h2>Your Question</h2>
+          <h2>💬 Your Question</h2>
           <span class="pill pill-blue" id="charCount">0 chars</span>
         </div>
         <div class="query-area">
           <textarea class="query-textarea" id="queryInput"
-            placeholder="Type a question — math, logic, general knowledge, coding…"
+            placeholder="Type any question... Try: 'What is 2+2?' or 'Prove sqrt(2) is irrational'"
             rows="4"></textarea>
-          <div class="flex gap-1 mt-2" style="justify-content:flex-end">
-            <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
-            <button class="btn btn-primary" id="routeBtn" onclick="routeQuery()">
-              Route Question →
-            </button>
+          <div class="flex gap-1 mt-2" style="justify-content:space-between; align-items:center;">
+            <span style="font-size:.72rem; color:var(--text-faint);">💡 Tip: Click sample questions above or press Ctrl+Enter to route</span>
+            <div class="flex gap-1">
+              <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+              <button class="btn btn-primary" id="routeBtn" onclick="routeQuery()">
+                🎯 Route Question →
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -287,8 +300,8 @@
       <!-- ── History ── -->
       <div class="history-section" id="historySection" style="display:none">
         <div class="history-header">
-          <h3>Recent Queries</h3>
-          <button class="btn btn-secondary text-xs" onclick="clearHistory()">Clear</button>
+          <h3>📜 Recent Queries</h3>
+          <button class="btn btn-secondary text-xs" onclick="clearHistory()">Clear All</button>
         </div>
         <div class="history-list" id="historyList"></div>
       </div>
@@ -301,18 +314,20 @@
         <!-- Empty state -->
         <div id="emptyState" class="empty-state">
           <div class="icon">🎯</div>
-          <div>Route a question to see<br>the strategy decision here</div>
+          <div style="margin-bottom:.5rem;"><strong>Ready to route!</strong></div>
+          <div style="font-size:.8rem;">Type a question or click a sample above<br>to see the routing decision</div>
         </div>
 
         <!-- Loading state -->
         <div id="loadingState" class="empty-state hidden">
           <div class="spinner"></div>
-          <div>Analysing difficulty…</div>
+          <div><strong>Analyzing difficulty...</strong></div>
+          <div style="font-size:.8rem; margin-top:.35rem;">Extracting features and routing</div>
         </div>
 
         <!-- Result content -->
         <div id="resultContent" class="hidden">
-          <div class="result-panel-header">Routing Decision</div>
+          <div class="result-panel-header">📊 Routing Decision</div>
 
           <!-- Strategy badge -->
           <div class="strategy-badge" id="strategyBadge">
@@ -364,12 +379,12 @@
 
           <!-- Feature bars -->
           <div class="features-section">
-            <div class="card-title">Feature Breakdown</div>
+            <div class="card-title">📈 Feature Breakdown</div>
             <div id="featureBars"></div>
           </div>
 
           <!-- Reasoning -->
-          <div class="card-title" style="padding:0 1.25rem .35rem">Routing Reasoning</div>
+          <div class="card-title" style="padding:0 1.25rem .35rem">🧠 Routing Explanation</div>
           <div class="reasoning-box" id="reasoningBox">—</div>
         </div>
       </div>
